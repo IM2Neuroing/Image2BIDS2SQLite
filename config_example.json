@@ -1,0 +1,8 @@
+{   
+    "__MAIN__config" : "version 1.0",
+    "repository_root": "/path/to/repo/Image2BIDS2SQLite",
+    "bids_root": "/path/to/root/BIDS",
+    "bids_dir_name": "BIDS_classicDB",
+    "__NIFTI_2_BIDS__config" : "1.0",
+    "4bids_dir_name": "for_bids"
+}
