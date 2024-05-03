@@ -60,6 +60,7 @@ def get_suffix_name(sequence):
             'T1': 'T1w',
             'T2': 'T2w',
             'DTI': 'dwi',
+            'DTI0': 'dwi',
             'DTI1': 'dwi',
             'DTI2': 'dwi',
             'DTI3': 'dwi',
@@ -87,9 +88,12 @@ def create_bids_mr_image(nifti_file_path, nifti_file_name, subject_dir, patientc
     nifti_file_sequence = nifti_file_name.split("_")[1]
     if nifti_file_sequence == "DTI":
         nifti_file_sequence_number = nifti_file_name.split("_")[2]
-        nifti_file_sequence = f"{nifti_file_sequence}{nifti_file_sequence_number}"
+        if nifti_file_sequence_number not in ["stereo","nonstereo"]:
+            nifti_file_sequence = f"{nifti_file_sequence}{nifti_file_sequence_number}"
+            nifti_file_stereo = nifti_file_name.split("_")[3]
         # get the file stereo
-        nifti_file_stereo = nifti_file_name.split("_")[3]
+        else:
+            nifti_file_stereo = nifti_file_name.split("_")[2]
     else:
         # get the file stereo
         nifti_file_stereo = nifti_file_name.split("_")[2]
@@ -113,13 +117,13 @@ def create_bids_mr_image(nifti_file_path, nifti_file_name, subject_dir, patientc
     # copy the NIFTI file to the BIDS directory
     shutil.copy2(nifti_file_path, bids_file_path)
 
-    # correct bids_file_path only until BIDS root directory for storage in the database
-    bids_file_path = os.path.join(bids_file_path.split(CONFIG["bids_dir_name"])[1])
-    # correct nifti_file_path only until for_bids directory for storage in the database
-    nifti_file_path = os.path.join(nifti_file_path.split(CONFIG["4bids_dir_name"])[1])
-
     #Preparation for the dictionary
     file_id = calculate_hash(bids_file_path)
+
+    # correct bids_file_path only until BIDS root directory for storage in the database
+    bids_file_path = os.path.join(CONFIG["bids_dir_name"],bids_file_path.split(CONFIG["bids_dir_name"])[1])
+    # correct nifti_file_path only until for_bids directory for storage in the database
+    nifti_file_path = os.path.join(CONFIG["4bids_dir_name"],nifti_file_path.split(CONFIG["4bids_dir_name"])[1])
 
     # define dictionary to store the files,bids infos
     files_info = {  "file_id": file_id,
@@ -183,6 +187,11 @@ def create_bids_ct_image(nifti_file_path, nifti_file_name, subject_dir, patientc
     #Preparation for the dictionary
     file_id = calculate_hash(bids_file_path)
 
+    # correct bids_file_path only until BIDS root directory for storage in the database
+    bids_file_path = os.path.join(CONFIG["bids_dir_name"],bids_file_path.split(CONFIG["bids_dir_name"])[1])
+    # correct nifti_file_path only until for_bids directory for storage in the database
+    nifti_file_path = os.path.join(CONFIG["4bids_dir_name"],nifti_file_path.split(CONFIG["4bids_dir_name"])[1])
+
     # define dictionary to store the files,bids infos
     files_info = {  "file_id": file_id,
                     "subject_id" : patientconfig['record_id'],
@@ -234,6 +243,11 @@ def create_bids_label_image(nifti_file_path, nifti_file_name, subject_dir, patie
     # copy the NIFTI file to the BIDS directory
     shutil.copy2(nifti_file_path, bids_file_path)
     file_id = calculate_hash(bids_file_path)
+
+    # correct bids_file_path only until BIDS root directory for storage in the database
+    bids_file_path = os.path.join(CONFIG["bids_dir_name"],bids_file_path.split(CONFIG["bids_dir_name"])[1])
+    # correct nifti_file_path only until for_bids directory for storage in the database
+    nifti_file_path = os.path.join(CONFIG["4bids_dir_name"],nifti_file_path.split(CONFIG["4bids_dir_name"])[1])
 
     # define dictionary to store the files,bids infos
     files_info = {  "file_id": file_id,
