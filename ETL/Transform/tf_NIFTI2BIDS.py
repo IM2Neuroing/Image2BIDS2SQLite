@@ -59,8 +59,17 @@ def get_suffix_name(sequence):
     suffix_mappings = {
             'T1': 'T1w',
             'T2': 'T2w',
-            'B0' : 'dwi',
             'DTI': 'dwi',
+            'DTI1': 'dwi',
+            'DTI2': 'dwi',
+            'DTI3': 'dwi',
+            'DTI4': 'dwi',
+            'DTI5': 'dwi',
+            'DTI6': 'dwi',
+            'DTI7': 'dwi',
+            'DTI8': 'dwi',
+            'DTI9': 'dwi',
+            'DTIB0' : 'dwi',
             'WAIR': 'FLAIR',
             'CT': 'T2star',
             'DPTSE': 'dwi'
