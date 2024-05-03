@@ -77,15 +77,15 @@ def create_bids_mr_image(nifti_file_path, nifti_file_name, subject_dir, patientc
     # get the file sequence
     nifti_file_sequence = nifti_file_name.split("_")[1]
     if nifti_file_sequence == "DTI":
-        nifti_file_sequence_number = nifti_file_name.split("_")[-1]
-        nifti_file_sequence = f"{nifti_file_sequence}-{nifti_file_sequence_number}"
-    # get the file stereo
-    nifti_file_stereo = nifti_file_name.split("_")[2]
+        nifti_file_sequence_number = nifti_file_name.split("_")[2]
+        nifti_file_sequence = f"{nifti_file_sequence}{nifti_file_sequence_number}"
+        # get the file stereo
+        nifti_file_stereo = nifti_file_name.split("_")[3]
+    else:
+        # get the file stereo
+        nifti_file_stereo = nifti_file_name.split("_")[2]
     # get the file pre/post
-    try:
-        nifti_file_prepost = nifti_file_name.split("_")[3].capitalize()
-    except:
-        nifti_file_prepost = "pre"
+    nifti_file_prepost = nifti_file_name.split("_")[-1].capitalize()
     
 
     # create the corresponding directories
@@ -108,7 +108,7 @@ def create_bids_mr_image(nifti_file_path, nifti_file_name, subject_dir, patientc
     bids_file_path = os.path.join(bids_file_path.split(CONFIG["bids_dir_name"])[1])
     # correct nifti_file_path only until for_bids directory for storage in the database
     nifti_file_path = os.path.join(nifti_file_path.split(CONFIG["4bids_dir_name"])[1])
-    
+
     #Preparation for the dictionary
     file_id = calculate_hash(bids_file_path)
 
