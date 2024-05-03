@@ -104,6 +104,11 @@ def create_bids_mr_image(nifti_file_path, nifti_file_name, subject_dir, patientc
     # copy the NIFTI file to the BIDS directory
     shutil.copy2(nifti_file_path, bids_file_path)
 
+    # correct bids_file_path only until BIDS root directory for storage in the database
+    bids_file_path = os.path.join(bids_file_path.split(CONFIG["bids_dir_name"])[1])
+    # correct nifti_file_path only until for_bids directory for storage in the database
+    nifti_file_path = os.path.join(nifti_file_path.split(CONFIG["4bids_dir_name"])[1])
+    
     #Preparation for the dictionary
     file_id = calculate_hash(bids_file_path)
 
