@@ -1,0 +1,44 @@
+{
+    "files": {
+        "file_id": "file hash",
+        "subject_id": 1,
+        "electrode_id": 1, 
+        "file_path": "BIDS_folder/.../subject_ses_acq_suffix.ext",
+        "file_type": "StimulationMap or Segmentation or...",
+        "source_id": "hash of source file", 
+        "transformation_id": 1 
+    },
+
+    "bids": {
+        "file_id": "file hash",
+        "modality": "MR",
+        "protocol_name": "name",
+        "stereotactic": "yes/no",
+        "dicom_image_type": "type",
+        "acquisition_date_time": "date", 
+        "relative_sidecar_path": "derivatives/.../subject_ses_acq_suffix.json",
+        "bids_subject": "01SP45MAAAA",
+        "bids_session": "pre",
+        "bids_extension": ".nii.gz",
+        "bids_datatype": "nifti",
+        "bids_acquisition": "acq<aaa>",
+        "bids_suffix": "T1w"
+    },
+
+    "labels": {
+        "is_label": "yes/no",
+        "file_id": "file hash",
+        "hemisphere": "right",
+        "structure": "vim",
+        "color": "red",
+        "comment": "comment"
+    },
+
+    "transformations": {
+        "is_transformation": "yes/no",
+        "transformation_id": 1,
+        "identity": "yes/no",
+        "target_id": "hash of target file",
+        "transform_id": "hash of warp file"
+    }
+}
