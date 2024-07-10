@@ -385,8 +385,6 @@ class SidecarGenerator(QWidget):
                 if filenames[i] not in file_list:
                     file_list.extend(filenames)
             self.unlock_gui(file_list)
-        else:
-            self.file_label.setText('Please select at least a file to continue')
     
     def unlock_gui(self, list):
         """
