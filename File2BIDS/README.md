@@ -2,8 +2,8 @@
 
 ## Folder overview
 The tools contained in this folder allow to save files with a naming convention and folder structure which follows the Brain Imaging Data Structure standard (Gorgolewski, K. J., Auer, T., Calhoun, V. D., Craddock, R. C., Das, S., Duff, E. P., et al. (2016). The brain imaging data structure, a format for organizing and describing outputs of neuroimaging experiments. Sci. Data 3, 160044. doi: 10.1038/sdata.2016.44). This operation can be split into 2 steps, performed through 2 separate tools which can be used in sequence or individually:
-    1) convert_to_BIDS.py allows to move or copy files to a selected BIDS project folder while renaming the files according to the standard and organizing them in the correct folder structure
-    2) BIDSsidecar_file_creator.py allows to generate json sidecar files for files named according to BIDS. The metadata fields populated in the sidecar file are reported in sample_sidecar_file.json. The sidecar creation application can be activated either after converting some files to BIDS with convert_to_BIDS.py (in this case such files are already given as input to BIDSsidecar_file_creator.py) or as standalone application.
+1) convert_to_BIDS.py allows to move or copy files to a selected BIDS project folder while renaming the files according to the standard and organizing them in the correct folder structure
+2) BIDSsidecar_file_creator.py allows to generate json sidecar files for files named according to BIDS. The metadata fields populated in the sidecar file are reported in sample_sidecar_file.json. The sidecar creation application can be activated either after converting some files to BIDS with convert_to_BIDS.py (in this case such files are already given as input to BIDSsidecar_file_creator.py) or as standalone application.
 Since both steps require some manual input from the user, both application have a GUI guiding the user through the process.
 
 ## Requirements
@@ -17,8 +17,8 @@ Script for a GUI allowing to organize one or more selected files in a BIDS-compl
 3) Manually fill in metadata fields required by the BIDS standard to generate the file name and folder organization. The "subject type" and "reference space" fields need to be completed only if the file is a derivative. 
     - New file types or suffixes can be provided by selecting "Other" in the dropdown list and typing the new value in the provided text field
     - The application supports batch conversion of multiple files with different subject acronyms, sessions, acquisitions, file names and reference spaces (if applicable). When multiple files are selected these fields can either be filled with:
-            - One value which will be applied to all the files (e.g. one subject acronym if all the files belong to the same subject)
-            - k values (where k is the number of files) separated by commas and without spaces (e.g. for 3 files from 2 subjects: sub01,sub01,sub02)
+        - One value which will be applied to all the files (e.g. one subject acronym if all the files belong to the same subject)
+        - k values (where k is the number of files) separated by commas and without spaces (e.g. for 3 files from 2 subjects: sub01,sub01,sub02)
 **For labels**: the file name should be: hemisphere(L or R)-structure
 4) Click on Convert files and the new BIDS-compliant file names will be printed on the GUI
 5) Move or copy the files by clicking on the respective buttons. If a file with the same name is already found in the destination folder the user is

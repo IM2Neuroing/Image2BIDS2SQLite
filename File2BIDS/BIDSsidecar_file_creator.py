@@ -18,6 +18,7 @@ from PyQt6.QtWidgets import (
     QLineEdit, QCheckBox, QLabel, QMessageBox, QDateEdit, QFrame, QScrollArea
 )
 from PyQt6.QtCore import Qt, QDate
+from PyQt6.QtGui import QPixmap
 import gui_functions as gf
 
 file_list:list
@@ -64,6 +65,7 @@ class SidecarGenerator(QWidget):
         layout_h3 = QHBoxLayout() # For warp file button and label
         layout_h4 = QHBoxLayout() # For layout_v1, layout_v2, layout_v3
         layout_h5 = QHBoxLayout() # For layout_v4, layout_v5, layout_v6
+        layout_h6 = QHBoxLayout() # For save button and FHNW logo
 
         # Label explaining how to use the GUI
         self.explanation_label = QLabel(self)
@@ -171,11 +173,11 @@ class SidecarGenerator(QWidget):
         # Button to trigger information extraction from file name
         self.extract_info_button = QPushButton('Extract information', self)
         self.extract_info_button.clicked.connect(self.extract_info)
-        layout_v4.addWidget(self.extract_info_button)
+        layout_v4.addWidget(self.extract_info_button, 0, Qt.AlignmentFlag.AlignCenter)
 
         # Label to show extraction status
         self.extraction_status_label = QLabel('', self)
-        layout_v4.addWidget(self.extraction_status_label)
+        layout_v4.addWidget(self.extraction_status_label, 0, Qt.AlignmentFlag.AlignCenter)
 
         # Text field with file modality
         self.text_modality = QLineEdit(self)
@@ -224,6 +226,10 @@ class SidecarGenerator(QWidget):
         line4.setFrameShape(QFrame.Shape.HLine)
         line4.setFrameShadow(QFrame.Shadow.Sunken)
 
+        line5 = QFrame()
+        line5.setFrameShape(QFrame.Shape.HLine)
+        line5.setFrameShadow(QFrame.Shadow.Sunken)
+
         layout_h4.addLayout(layout_v1, 2)
         layout_h4.addWidget(line2)
         layout_h4.addLayout(layout_v2, 1)
@@ -239,16 +245,28 @@ class SidecarGenerator(QWidget):
         layout_v7.addLayout(layout_h4)
         layout_v7.addWidget(line4)
         layout_v7.addLayout(layout_h5)
+        layout_v7.addWidget(line5)
         
         # Save button
         self.save_button = QPushButton('Save json', self)
         self.save_button.clicked.connect(self.show_dialog_proceed)
-        layout_v7.addWidget(self.save_button)
+        layout_h6.addWidget(self.save_button, 0, Qt.AlignmentFlag.AlignCenter)
 
+        # Label with FHNW logo
+        image_label = QLabel(self)
+        pixmap = QPixmap('./fhnw_logo.png') 
+        pixmap = pixmap.scaled(200, 50, aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatio)
+        image_label.setPixmap(pixmap)
+        image_label.setMaximumSize(200,50)
+        layout_h6.addWidget(image_label, alignment=Qt.AlignmentFlag.AlignRight)
+
+        layout_v7.addLayout(layout_h6)
         self.setLayout(layout_v7)
 
         # Set widgets to their initial status, some of them are disabled in the beginning
         self.init_widgets()
+
+        self.showMaximized()
 
         # If the application is started by the BIDS converter the list of files is already passed as input
         if file_list:
@@ -262,13 +280,13 @@ class SidecarGenerator(QWidget):
                 font-size: 14px;
             }
             QPushButton {
-                background-color: #a5d7d2;
+                background-color: #fff48d;
                 color: black;
                 border-radius: 5px;
                 padding: 10px;
             }
             QPushButton:hover {
-                background-color: #1ea5a5;
+                background-color: #fbd100;
             }
             QLabel, QLineEdit, QCheckBox, QComboBox {
                 font-size: 14px;
@@ -280,9 +298,10 @@ class SidecarGenerator(QWidget):
             }
         """)
 
-        # When the application is started the window is full screen
-        self.showMaximized()
+        # Define buttons max size
+        self.set_button_size(150, 40)
 
+        
     def init_widgets(self):
         """
         Function setting all the GUI widgets to initial state
@@ -317,6 +336,13 @@ class SidecarGenerator(QWidget):
         self.date_picker.setDate(QDate.currentDate())
         self.save_button.setDisabled(True)
     
+    def set_button_size(self, width, height):
+        """
+        Function to set maximum button size
+        """
+        for widget in self.findChildren(QPushButton):
+            widget.setMaximumSize(width, height)
+
     def toggle_text_input_label(self):
         """
         Function enabling the label-related fields when label checkbox is checked and disabling them
