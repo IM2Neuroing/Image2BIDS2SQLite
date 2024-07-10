@@ -312,6 +312,8 @@ class SidecarGenerator(QWidget):
         self.checkbox_label.setCheckable(False)
         self.checkbox_transformation.setChecked(False)
         self.checkbox_transformation.setCheckable(False)
+        self.text_color.clear()
+        self.text_comment.clear()
         self.text_color.setDisabled(True)
         self.text_comment.setDisabled(True)
         self.source_file_button.setDisabled(True)
