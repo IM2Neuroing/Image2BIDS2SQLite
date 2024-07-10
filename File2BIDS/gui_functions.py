@@ -5,6 +5,7 @@ import hashlib
 # Dictionary mapping the file extension to the datatype
 data_dict = {
     "nii.gz": "NifTI",
+    "nii": "NifTI",
     "txt": "Text",
     "vtp": "VTK surface model",
     "mat": "MATLAB file",

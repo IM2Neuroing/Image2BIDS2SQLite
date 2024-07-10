@@ -18,7 +18,7 @@ Script for a GUI allowing to organize one or more selected files in a BIDS-compl
     - New file types or suffixes can be provided by selecting "Other" in the dropdown list and typing the new value in the provided text field
     - The application supports batch conversion of multiple files with different subject acronyms, sessions, acquisitions, file names and reference spaces (if applicable). When multiple files are selected these fields can either be filled with:
         - One value which will be applied to all the files (e.g. one subject acronym if all the files belong to the same subject)
-        - k values (where k is the number of files) separated by commas and without spaces (e.g. for 3 files from 2 subjects: sub01,sub01,sub02)
+        - k values (where k is the number of files) separated by commas and without spaces (e.g. for 3 files from 2 subjects: sub01,sub01,sub02). The order of the values should be the same as the files order as reported on the GUI
 **For labels**: the file name should be: hemisphere(L or R)-structure
 4) Click on Convert files and the new BIDS-compliant file names will be printed on the GUI
 5) Move or copy the files by clicking on the respective buttons. If a file with the same name is already found in the destination folder the user is
@@ -28,7 +28,7 @@ passed as input to the application. The current application will be closed
 
 ## BIDSsidecar_file_creator.py
 Script for a GUI allowing to generate BIDS-compliant json sidecar files for one or more selected files. 
-Part of the information to be added to the sidecar file is automatically extracted from the file name and path and part has to be manually inserted by the user thorugh the GUI.
+Part of the information to be added to the sidecar file is automatically extracted from the file name and path and part has to be manually inserted by the user thorugh the GUI. Batch generation of multiple json files is possible for files having the same values in the fields which need to be manually populated by the user.
 **The input files need to be already named and organized according to BIDS**
 
 The structure of the json files is shown in the sample_sidecar_file.json.
