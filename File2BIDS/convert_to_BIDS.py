@@ -89,7 +89,13 @@ class BIDSConverter(QWidget):
         self.bids_folder_label = QLabel('Select BIDS folder ', self)
         self.bids_folder_label.setFixedSize(150,60)
         self.bids_folder_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
-        layout_v0.addWidget(self.bids_folder_label)
+
+        # Scrollable area in which to embed the selected folder label
+        self.bids_folder_scroll_area = QScrollArea(self)
+        self.bids_folder_scroll_area.setWidgetResizable(True)
+        self.bids_folder_scroll_area.setWidget(self.bids_folder_label)
+        self.bids_folder_scroll_area.setFixedSize(160,100)
+        layout_v0.addWidget(self.bids_folder_scroll_area)
 
         line0 = QFrame()
         line0.setFrameShape(QFrame.Shape.VLine)
@@ -98,7 +104,6 @@ class BIDSConverter(QWidget):
         layout_h0.addWidget(line0)
 
         layout_h0.addLayout(layout_v0)
-        layout_h0.setStretch(0,2)
 
         # File selection button
         self.add_file_button = QPushButton('Add Files', self)
@@ -386,10 +391,7 @@ class BIDSConverter(QWidget):
                 if filenames[i] not in original_files_list:
                     original_files_list.extend(filenames)
             self.unlock_gui(original_files_list)
-        else:
-            self.file_label.setText('Please select at least a file to continue')
     
-    #TODO FINISH
     def unlock_gui(self, list):
         """
         Function to unlock the other GUI fields after some files have been selected
