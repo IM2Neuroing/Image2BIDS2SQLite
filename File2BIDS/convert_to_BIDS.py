@@ -87,7 +87,6 @@ class BIDSConverter(QWidget):
 
         # Label to show selected BIDS folder
         self.bids_folder_label = QLabel('Select BIDS folder ', self)
-        self.bids_folder_label.setFixedSize(150,60)
         self.bids_folder_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
 
         # Scrollable area in which to embed the selected folder label
@@ -396,7 +395,7 @@ class BIDSConverter(QWidget):
         """
         Function to unlock the other GUI fields after some files have been selected
         """
-        self.file_label.setText('Selected files:\n'+'\n'.join(list))
+        self.file_label.setText('Selected files:\n'+'\n\n'.join(list))
         self.file_label.setWordWrap(True)
         self.clear_button.setDisabled(False)
         self.checkbox_derivative.setCheckable(True)
@@ -522,7 +521,7 @@ class BIDSConverter(QWidget):
                     # Loop through the original files and generate new names
                     for i in range(n_orig_files):
                         # Get file extension from original file name
-                        ext = original_files_list[i].split('.')[-1]
+                        ext = original_files_list[i].split('.',1)[1]
                         if (space[i] != '' and space[i] != ' '):
                             deriv_file_name = f"sub-{subj_acr[i]}_space-{space[i]}_ses-{session[i]}_acq-{acquisition[i]}_{file_name[i]}_{suffix}.{ext}"
                         else:
@@ -536,7 +535,7 @@ class BIDSConverter(QWidget):
                 # Loop through the original files and generate new names
                 for i in range(n_orig_files):
                     # Get file extension from original file name
-                    ext = original_files_list[i].split('.')[-1]
+                    ext = original_files_list[i].split('.',1)[1]
                     raw_file_name = f"sub-{subj_acr[i]}_ses-{session[i]}_acq-{acquisition[i]}_{file_name[i]}_{suffix}.{ext}"
                     file_path = f"{bids_folder}/sub-{subj_acr[i]}/ses-{session[i]}/{file_type}/{raw_file_name}"
                     # Add newly generated file path to list 
