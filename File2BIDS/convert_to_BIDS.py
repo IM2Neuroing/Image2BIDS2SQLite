@@ -23,9 +23,10 @@ import os
 import shutil
 from PyQt6.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QFileDialog, 
-    QLineEdit, QCheckBox, QLabel, QMessageBox, QFrame, QScrollArea, QComboBox
+    QLineEdit, QCheckBox, QLabel, QMessageBox, QFrame, QScrollArea, QComboBox, QSpacerItem, QSizePolicy
 )
 from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QPixmap
 import gui_functions as gf
 import subprocess
 
@@ -44,6 +45,9 @@ class BIDSConverter(QWidget):
 
     def initUI(self):
         self.setWindowTitle("File to BIDS converter")
+
+        # Set initial window size
+        self.setGeometry(100, 100, 400, 300)
 
         # Define layout
         layout_h0 = QHBoxLayout() # For explanation label and layout_v0
@@ -83,9 +87,15 @@ class BIDSConverter(QWidget):
 
         # Label to show selected BIDS folder
         self.bids_folder_label = QLabel('Select BIDS folder ', self)
-        self.bids_folder_label.setFixedSize(150,100)
+        self.bids_folder_label.setFixedSize(150,60)
         self.bids_folder_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
         layout_v0.addWidget(self.bids_folder_label)
+
+        line0 = QFrame()
+        line0.setFrameShape(QFrame.Shape.VLine)
+        line0.setFrameShadow(QFrame.Shadow.Sunken)
+
+        layout_h0.addWidget(line0)
 
         layout_h0.addLayout(layout_v0)
         layout_h0.setStretch(0,2)
@@ -222,6 +232,14 @@ class BIDSConverter(QWidget):
         self.gen_json_button.clicked.connect(self.open_json_generator) 
         layout_h3.addWidget(self.gen_json_button)
 
+        # Label with FHNW logo
+        image_label = QLabel(self)
+        pixmap = QPixmap('./fhnw_logo.png') 
+        pixmap = pixmap.scaled(200, 50, aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatio)
+        image_label.setPixmap(pixmap)
+        image_label.setMaximumSize(200,50)
+        layout_h3.addWidget(image_label, 0, alignment=Qt.AlignmentFlag.AlignRight)
+
         # Separation lines
         line1 = QFrame()
         line1.setFrameShape(QFrame.Shape.HLine)
@@ -269,13 +287,13 @@ class BIDSConverter(QWidget):
                 font-size: 14px;
             }
             QPushButton {
-                background-color: #a5d7d2;
+                background-color: #fff48d;
                 color: black;
                 border-radius: 5px;
                 padding: 10px;
             }
             QPushButton:hover {
-                background-color: #1ea5a5;
+                background-color: #fbd100;
             }
             QLabel, QLineEdit, QCheckBox, QComboBox {
                 font-size: 14px;
@@ -286,6 +304,9 @@ class BIDSConverter(QWidget):
                 color: #333;
             }
         """)
+
+        # Define buttons max size
+        self.set_button_size(150, 40)
 
         # When the application is started the window is full screen
         self.showMaximized()
@@ -325,6 +346,13 @@ class BIDSConverter(QWidget):
         self.gen_json_button.setDisabled(True)
         self.gen_bids_button.setDisabled(True)
         self.bids_file_label.setText('Proposed names: ')
+
+    def set_button_size(self, width, height):
+        """
+        Function to set maximum button size
+        """
+        for widget in self.findChildren(QPushButton):
+            widget.setMaximumSize(width, height)
  
     def select_folder(self):
         """
