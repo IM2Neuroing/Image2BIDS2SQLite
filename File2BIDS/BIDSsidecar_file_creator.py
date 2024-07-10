@@ -390,7 +390,7 @@ class SidecarGenerator(QWidget):
         """
         Function to unlock the other GUI fields after some files have been selected
         """
-        self.file_label.setText('Selected files:\n'+'\n'.join(list))
+        self.file_label.setText('Selected files:\n'+'\n\n'.join(list))
         self.file_label.setWordWrap(True)
         self.checkbox_stereo.setCheckable(True)
         self.extract_info_button.setDisabled(False)
