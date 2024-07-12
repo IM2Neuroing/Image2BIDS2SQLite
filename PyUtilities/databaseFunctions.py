@@ -149,7 +149,7 @@ def generate_search_statement(searched_attribute,table,attributes,redcapvalues):
 def execute_sql_statement(sql_statement, db_file):
     """
     :param db_file: complete file path to db
-    :param sql_statement: insert statement creating the new entry if it doesn't exist yet
+    :param sql_statement: sql statement to select, insert, update or delete row
     :return: None or the result of the query
     """
     # Connect to the SQLite database
@@ -251,3 +251,42 @@ def fix_sql_query(sql_query):
     # Use regular expressions to replace 'NULL' with 'IS NULL' while preserving single quotes
     fixed_query = re.sub(r"= 'NULL'", "IS NULL", sql_query)
     return fixed_query
+
+def get_db_dict(db_path):
+    """
+    The function retrieves a list of all tables in the database. Iterates through each table and fetches information about 
+    its columns. Builds a dictionary (tables_dict) where each entry represents a table, with the table name as the key and a list of its column names as the value.
+    
+    Args:
+    db_path (str): the absolute file path to the SQLite database
+
+    Returns: 
+    tables_dict (dict): a dictionary where keys are table names, and values are lists containing the column names associated with each table in the SQLite database
+    """
+
+    # Dictionary to store table names and their columns
+    tables_dict = {}
+    # Generate statement 
+    select_statement = f"SELECT name FROM sqlite_master WHERE type='table';"
+    # Get list of tables from db
+    tables = execute_sql_statement(select_statement, db_path)
+
+    if (tables != []):
+
+        # Iterate through tables
+        for table in tables:
+            table_name = table[0]
+            columns = []
+
+            # Get information about each column in the table
+            query = f"PRAGMA table_info({table_name});"
+            column_info = execute_sql_statement(query, db_path)
+
+            # Extract column names
+            for col in column_info:
+                columns.append(col[1])
+
+            # Add the table and its columns to the dictionary
+            tables_dict[table_name] = columns
+
+    return tables_dict
