@@ -290,3 +290,68 @@ def get_db_dict(db_path):
             tables_dict[table_name] = columns
 
     return tables_dict
+
+def gen_join_statement(tables, attributes, join_type):
+    """
+    The function generates the join statement between multiple tables
+
+    Args:
+    tables (list): list with tables names
+    attributes (list): list with tables attributes used for the join. The order of the attributes should follow the order of tables
+    join_type (str): string indicating the type of join (INNER, OUTER, LEFT, RIGHT)
+
+    Returns:
+    join_statement (str): string with SQL statement to join tables, to be used in the SELECT queries
+    """
+
+    join_statement = ''
+    for i in range(len(tables)-1):
+        join_statement = join_statement + join_type + ' JOIN ' + tables[i+1] + ' ON ' +\
+            tables[i] + '.' + attributes[i] + ' = ' + tables[i+1] + '.' + attributes[i+1] + ' '
+    join_statement = tables[0] + ' ' + join_statement
+    
+    return join_statement
+
+def get_db_row(table_name, values, database_path, attribute, compare_signs):
+    """
+    The function builds a SELECT query with conditions based on the provided column names and values.
+    
+    Args: 
+    table_name (str): a string representing the name of the table in the SQLite database to check.
+    values (dict): a dictionary where keys are column names, and values are the corresponding values to check for in the row.
+    database_path (str): absolute path to database
+    attribute (str): a string with the name of the searched attribute. If entire row is desired attribute = *
+    compare_signs (bool or list): bool variable or list of bool variables to indicate the sign (= or !=) to be used for each filter
+
+    Returns:
+    result + True: if row(s) exists and have been successfully selected
+    'NA' + False: if row doesn't exist
+    """
+    
+    sign_dict = {False:'!=', True:'='}
+
+    if type(compare_signs) is list:
+        # Get list of signs to build SELECT condition. e.g. [True, False, True] = [=, !=, =]
+        sign_list = [sign_dict[key] for key in compare_signs]
+    else: 
+        # Create list of signs with the same sign repeated as many times as the number of attributes used to filter the table
+        sign = sign_dict[compare_signs]
+        sign_list = [sign]*len(values.keys())
+    
+    # Build the SELECT query
+    conditions = []
+    query = f"SELECT {attribute} FROM {table_name} WHERE "
+    for i in range(len(sign_list)):
+        key = list(values.keys())[i]
+        string = str(key) + ' ' + sign_list[i] + ' ?' 
+        conditions.append(string)
+    query += " AND ".join(conditions)
+
+    # Fetch the result(s)
+    result = execute_sql_statement(query, database_path)
+
+    # Check if a row exists
+    if result:
+        return result, True
+    else:
+        return [('NA',)], False
