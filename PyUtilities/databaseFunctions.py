@@ -407,3 +407,57 @@ def get_max_from_table(table_name, column, database_path):
     finally:
         # Close the database connection
         connection.close()
+
+def insert_or_update(table_name, data, database_path, update=False):
+    """
+    The function  inserts a new row into an SQLite table if a row with the same primary key values does not already exist. 
+    If a matching row is found, it updates the existing row with new values if the update flag is set to True.
+
+    Args:
+    table_name (str): name of the SQLite table where the data is to be inserted or updated.
+    data (dict): dictionary containing column names and corresponding values for the row to be inserted or updated.
+    database_path (str): absolute file path to the SQLite database
+    update (bool): flag indicating whether to update an existing row or not. By default it's False
+    """
+
+    # Get table primary key columns
+    pk = get_primary_keys(table_name, database_path)
+    # Retain the values of primary key columns from the data dictionary
+    data_pk_only = {key: value for key, value in data.items() if key in pk}
+    data_no_pk = {key: value for key, value in data.items() if key not in pk}
+    # Check if row already exists in database - check only the primary key columns
+    row, exists = get_db_row(table_name, data_pk_only, database_path, '*', True) 
+    
+    try:
+       # Connect to the SQLite database
+        connection = sqlite3.connect(database_path)
+        cursor = connection.cursor() 
+        # Get column names
+        columns = ', '.join(data.keys())
+        # Get tuple with column values to insert
+        values = ', '.join(['"' + str(value) + '"' for value in data.values()])
+        # If row doesn't exist use insert query to add it, otherwise update the row
+        if exists is False:
+            query = f"INSERT INTO {table_name} ({columns}) VALUES ({values})"
+            cursor.execute(query)
+            connection.commit()
+            return "Statement executed successfully."
+        elif ((exists is True) and (update is True)):
+            query = f"UPDATE {table_name} SET "
+            set_clause = [f"{col} = ?" for col in data_no_pk.keys()]
+            query += ", ".join(set_clause)
+            where_clause = " AND ".join([f"{key} = ?" for key in data_pk_only.keys()])
+            query += f" WHERE {where_clause};"
+            cursor.execute(query, tuple(data_no_pk.values()) + tuple(data_pk_only.values()))   
+            connection.commit()
+            return "Statement executed successfully."
+        else:
+            return "Entry already exists and will not be overwritten"
+    
+    
+    except sqlite3.Error as e:
+        workflow_logger.error(f"Insertion/update failed: {e}")
+        return f"Insertion/update failed: {e}"
+    finally:
+        # Close the database connection
+        connection.close()
