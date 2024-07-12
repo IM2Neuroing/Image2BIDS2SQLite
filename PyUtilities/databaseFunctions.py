@@ -355,3 +355,24 @@ def get_db_row(table_name, values, database_path, attribute, compare_signs):
         return result, True
     else:
         return [('NA',)], False
+    
+def get_primary_keys(table_name, database_path):
+    """
+    The function retrieves the names of primary key columns for a specified SQLite table
+    
+    Args:
+    table_name (str): the name of the SQLite table for which to obtain primary key information.
+    database_path (str): the absolute file path to the SQLite database
+    
+    Returns:
+    primary_keys (list): A list containing the names of columns that are marked as primary keys for the specified table. 
+    If there are multiple primary keys (composite primary key), the list will contain multiple column names. If no primary keys are found, the function returns an empty list. 
+    """
+
+    # Query the sqlite_master table to get information about the table
+    query = f"PRAGMA table_info({table_name});"
+    table_info = execute_sql_statement(query, database_path)
+    # Find columns that have the 'pk' flag (primary key)
+    primary_keys = [column[1] for column in table_info if column[5]]
+
+    return primary_keys
