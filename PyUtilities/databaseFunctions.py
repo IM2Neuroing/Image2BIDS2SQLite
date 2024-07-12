@@ -376,3 +376,34 @@ def get_primary_keys(table_name, database_path):
     primary_keys = [column[1] for column in table_info if column[5]]
 
     return primary_keys
+
+def get_max_from_table(table_name, column, database_path):
+    """
+    The function runs a query to select the maximum value from a table column in a database.
+    Can be used to get the highest value of the index column for example
+
+    Args:
+    table_name (str): name of table to check
+    column (str): the name of the column
+    database_path (str): absolute file path to the SQLite database
+
+    Returns:
+    max (int): maximum value extracted from table
+    """
+    
+    try:
+       # Connect to the SQLite database
+        connection = sqlite3.connect(database_path)
+        cursor = connection.cursor() 
+        query = 'SELECT MAX(' + column + ') FROM ' +table_name
+        cursor.execute(query)
+        max = cursor.fetchone()
+        if max[0] is None:
+            return 0
+        else:
+            return max[0]
+    except sqlite3.Error as e:
+        print("Error:", e)
+    finally:
+        # Close the database connection
+        connection.close()
