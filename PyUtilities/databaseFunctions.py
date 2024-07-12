@@ -94,58 +94,6 @@ def wipe_sqlite_database(db_name):
         # Close the database connection
         conn.close()
 
-def generate_insert_statement(table_name, data):
-    """
-    This function generates an insert statement for a given table and data.
-
-    Args:
-    table_name (str): The name of the table.
-    data (dict): The data to be inserted.
-
-    Returns:
-    str: The insert statement.
-    """
-    columns = ', '.join(data.keys())
-    values = ', '.join(["'" + str(value) + "'" for value in data.values()])
-    # remove ' before and after numeric values to avoid SQL errors
-    values = re.sub(r"'(\d+(\.\d+)?)'", r"\1", values)
-    # remove ' before opening brackets to avoid SQL errors
-    values = re.sub(r"'(\()", r'\1', values)
-    # remove ' after closing brackets to avoid SQL errors
-    values = re.sub(r"(\))'", r'\1', values)
-
-    insert_statement = f"INSERT OR IGNORE INTO {table_name} ({columns}) VALUES ({values});"
-    
-    return insert_statement
-
-def generate_search_statement(searched_attribute,table,attributes,redcapvalues):
-    """
-    This function generates an search statement for a given table and data.
-
-    Args:
-    searched_attribute (str): The name of the searched attribute.
-    table (str): The name of the table.
-    attributes (list): The attributes to be searched.
-    redcapvalues (list): The values to be searched.
-
-    Returns:
-    str: The search statement.
-    """
-    # add ' before and after
-    redcapvalues = [f"'{value}'" for value in redcapvalues]
-    # remove ' before and after numeric values to avoid SQL errors
-    redcapvalues = [re.sub(r"'(\d+(\.\d+)?)'", r'\1', value) for value in redcapvalues]
-    # remove ' before opening brackets to avoid SQL errors
-    redcapvalues = [re.sub(r"'(\()", r'\1', value) for value in redcapvalues]
-    # remove ' after closing brackets to avoid SQL errors
-    redcapvalues = [re.sub(r"(\))'", r'\1', value) for value in redcapvalues]
-
-    sql_statement = f"(SELECT {searched_attribute} FROM {table} WHERE {attributes[0]} = {redcapvalues[0]}"
-    for attribute, redcapvalue in zip(attributes[1:], redcapvalues[1:]):
-        sql_statement += f" AND {attribute} = {redcapvalue}"
-    sql_statement += ")"
-    return fix_sql_query(sql_statement)
-
 def execute_sql_statement(sql_statement, db_file):
     """
     :param db_file: complete file path to db
