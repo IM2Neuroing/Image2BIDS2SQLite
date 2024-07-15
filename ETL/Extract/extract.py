@@ -28,21 +28,28 @@ def extract_sidecar_data():
 
     Returns: data (pandas DataFrame): Extracted data from BIDS sidecar files.
     """ 
+    ## CHECKS
+    # Check if config file is read successfully
+    if CONFIG is None:
+        workflow_logger.error("Config file not found or not read successfully.")
+        exit()
+    # Check if extraction should be skipped
+    if CONFIG['skip_extraction']:
+        workflow_logger.info("Extraction is skipped as per config file.")
+        return None
     # Check if extraction path is provided
-    if CONFIG['datasystem_root'] is None or CONFIG['bids_dir_name'] is None:
+    if CONFIG['datasystem_root'] is None or CONFIG['bids_dir_path'] is None:
         workflow_logger.error("BIDS root path or BIDS directory name not provided in config file.")
         exit()
 
     ## Extract data
     # get BIDS path and check if it exists
-    bids_path = os.path.join(CONFIG['datasystem_root'], CONFIG['bids_dir_name'])
+    bids_path = os.path.join(CONFIG['bids_dir_path'])
     if not os.path.exists(bids_path):
         workflow_logger.error(f"BIDS path does not exist: {bids_path}")
         exit()
-    # Get all image files
-    image_files = Path(bids_path).rglob('*.nii.gz')
-    # Get all sidecar files by replacing image "*.nii.gz" extension with *.json
-    sidecar_files = [str(file).replace('.nii.gz', '.json') for file in image_files]
+    # Get all sidecar files finding *_sidecar.json
+    sidecar_files = Path(bids_path).rglob('*_sidecar.json')
 
     # Extract data from all sidecar files
     data = pd.DataFrame()
@@ -58,18 +65,21 @@ def extract_sidecar_data():
 
     ## Store data
     store_data(data)
-    workflow_logger.debug(f"Data stored successfully, path: {CONFIG['datasystem_root']}/SQLiteSetup/data/extracted_data.csv")
+    workflow_logger.debug(f"Data stored successfully, path: {CONFIG['extraction_path']}/extracted_data.csv")
 
     workflow_logger.info(f"Data extracted:\n{data}")
     return data
 
 def store_data(data):
     # mkdir "data" if not exists
-    data_dir = os.path.join(CONFIG['datasystem_root'],'SQLiteSetup/data')
+    data_dir = os.path.join(CONFIG['extraction_path'])
     mkdir_if_not_exists(data_dir)
-
-    # Save extracted data to a csv file
+    # Define the path to store the extracted data
     data_file = os.path.join(data_dir, 'extracted_data.csv')
+    # Check if file already exists
+    if os.path.exists(data_file):
+        os.remove(data_file)
+    # Save extracted data to a csv file
     data.to_csv(data_file, index=False)
 
 # Extract program
