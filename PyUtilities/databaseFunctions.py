@@ -275,7 +275,32 @@ def get_db_row(table_name, values, database_path, attribute, compare_signs):
     result + True: if row(s) exists and have been successfully selected
     'NA' + False: if row doesn't exist
     """
+    # Generate query
+    query = gen_select_statement(table_name, values, database_path, attribute, compare_signs)
     
+    # Fetch the result(s)
+    result = execute_sql_statement(query, database_path)
+
+    # Check if a row exists
+    if result:
+        return result, True
+    else:
+        return [('NA',)], False
+
+def gen_select_statement(table_name, values, attribute, compare_signs):
+    """
+    The function builds a SELECT query with conditions based on the provided column names and values.
+    
+    Args: 
+    table_name (str): a string representing the name of the table in the SQLite database to check.
+    values (dict): a dictionary where keys are column names, and values are the corresponding values to check for in the row.
+    attribute (str): a string with the name of the searched attribute. If entire row is desired attribute = *
+    compare_signs (bool or list): bool variable or list of bool variables to indicate the sign (= or !=) to be used for each filter
+
+    Returns:
+    query (str): string with query
+    """
+
     sign_dict = {False:'!=', True:'='}
 
     if type(compare_signs) is list:
@@ -295,14 +320,8 @@ def get_db_row(table_name, values, database_path, attribute, compare_signs):
         conditions.append(string)
     query += " AND ".join(conditions)
 
-    # Fetch the result(s)
-    result = execute_sql_statement(query, database_path)
+    return query
 
-    # Check if a row exists
-    if result:
-        return result, True
-    else:
-        return [('NA',)], False
     
 def get_primary_keys(table_name, database_path):
     """
@@ -356,7 +375,8 @@ def get_max_from_table(table_name, column, database_path):
         # Close the database connection
         connection.close()
 
-def insert_or_update(table_name, data, database_path, update=False):
+
+def gen_insert_or_update_statement(table_name, data, database_path):
     """
     The function  inserts a new row into an SQLite table if a row with the same primary key values does not already exist. 
     If a matching row is found, it updates the existing row with new values if the update flag is set to True.
@@ -365,7 +385,10 @@ def insert_or_update(table_name, data, database_path, update=False):
     table_name (str): name of the SQLite table where the data is to be inserted or updated.
     data (dict): dictionary containing column names and corresponding values for the row to be inserted or updated.
     database_path (str): absolute file path to the SQLite database
-    update (bool): flag indicating whether to update an existing row or not. By default it's False
+    
+    Returns:
+    exists (bool): if True it means that the row exists already in the db so an update query is generated. Otherwise an insert query is generated
+    query (str): string with query
     """
 
     # Get table primary key columns
@@ -376,36 +399,18 @@ def insert_or_update(table_name, data, database_path, update=False):
     # Check if row already exists in database - check only the primary key columns
     row, exists = get_db_row(table_name, data_pk_only, database_path, '*', True) 
     
-    try:
-       # Connect to the SQLite database
-        connection = sqlite3.connect(database_path)
-        cursor = connection.cursor() 
-        # Get column names
-        columns = ', '.join(data.keys())
-        # Get tuple with column values to insert
-        values = ', '.join(['"' + str(value) + '"' for value in data.values()])
-        # If row doesn't exist use insert query to add it, otherwise update the row
-        if exists is False:
-            query = f"INSERT INTO {table_name} ({columns}) VALUES ({values})"
-            cursor.execute(query)
-            connection.commit()
-            return "Statement executed successfully."
-        elif ((exists is True) and (update is True)):
-            query = f"UPDATE {table_name} SET "
-            set_clause = [f"{col} = ?" for col in data_no_pk.keys()]
-            query += ", ".join(set_clause)
-            where_clause = " AND ".join([f"{key} = ?" for key in data_pk_only.keys()])
-            query += f" WHERE {where_clause};"
-            cursor.execute(query, tuple(data_no_pk.values()) + tuple(data_pk_only.values()))   
-            connection.commit()
-            return "Statement executed successfully."
-        else:
-            return "Entry already exists and will not be overwritten"
+    # Get column names
+    columns = ', '.join(data.keys())
+    # Get tuple with column values to insert
+    values = ', '.join(['"' + str(value) + '"' for value in data.values()])
+    # If row doesn't exist use insert query to add it, otherwise update the row
+    if exists is False:
+        query = f"INSERT INTO {table_name} ({columns}) VALUES ({values})"
+    else:
+        query = f"UPDATE {table_name} SET "
+        set_clause = [f"{col} = '{value}'" if isinstance(value, str) else f"{col} = {value}" for col, value in data_no_pk.items()]
+        query += ", ".join(set_clause)
+        where_clause = " AND ".join([f"{key} = '{value}'" if isinstance(value, str) else f"{key} = {value}" for key, value in data_pk_only.items()])
+        query += f" WHERE {where_clause};"
     
-    
-    except sqlite3.Error as e:
-        workflow_logger.error(f"Insertion/update failed: {e}")
-        return f"Insertion/update failed: {e}"
-    finally:
-        # Close the database connection
-        connection.close()
+    return exists, query
