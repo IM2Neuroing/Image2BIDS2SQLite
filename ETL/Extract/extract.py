@@ -37,11 +37,14 @@ def extract_sidecar_data():
     if CONFIG['skip_extraction']:
         workflow_logger.info("Extraction is skipped as per config file.")
         return None
-    # Check if extraction path is provided
-    if CONFIG['datasystem_root'] is None or CONFIG['bids_dir_path'] is None:
-        workflow_logger.error("BIDS root path or BIDS directory name not provided in config file.")
+    # Check if extraction path and BIDS directory path exists
+    if not os.path.exists(CONFIG['extraction_path']):
+        workflow_logger.error(f"Extraction path does not exist: {CONFIG['extraction_path']}")
         exit()
-
+    if not os.path.exists(CONFIG['bids_dir_path']):
+        workflow_logger.error(f"BIDS directory path does not exist: {CONFIG['bids_dir_path']}")
+        exit()
+        
     ## Extract data
     # get BIDS path and check if it exists
     bids_path = os.path.join(CONFIG['bids_dir_path'])
