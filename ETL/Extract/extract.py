@@ -22,7 +22,7 @@ workflow_logger = logging.getLogger('workflow_logger')
 CONFIG_FILE_PATH = 'config.json'
 CONFIG = read_config_file(CONFIG_FILE_PATH)
 
-def extract_sidecar_data():
+def extract_sidecar_data()-> json:
     """
     Function to extract data from all sidecar files from BIDS folder.
 
@@ -54,36 +54,57 @@ def extract_sidecar_data():
     # Get all sidecar files finding *_sidecar.json
     sidecar_files = Path(bids_path).rglob('*_sidecar.json')
 
-    # Extract data from all sidecar files
-    data = pd.DataFrame()
-    for file in sidecar_files:
-        # Read the sidecar file
-        sidecar_data = pd.read_json(file, orient='index').T
-        data = pd.concat([data, sidecar_data], ignore_index=True)
+    # Extract data from all sidecar json files
+    data = combine_json_files(sidecar_files)
         
     # check if data is empty
-    if data.empty:
+    if data is None or len(data) == 0:
         workflow_logger.error("Extracted data is empty, no data will be processed")
         exit()
 
     ## Store data
     store_data(data)
-    workflow_logger.debug(f"Data stored successfully, path: {CONFIG['extraction_path']}/extracted_data.csv")
-
+    workflow_logger.debug(f"Data stored successfully, path: {CONFIG['extraction_path']}/extracted_data.json")
     workflow_logger.info(f"Data extracted:\n{data}")
     return data
 
-def store_data(data):
+def combine_json_files(json_files:list)-> json:
+    """
+    Combines data from multiple JSON files into a single list.
+
+    :param json_files: List of paths to JSON files
+    :return: List containing data from all JSON files
+    """
+    combined_data = []
+
+    for file_path in json_files:
+        try:
+            with open(file_path, 'r') as f:
+                data = json.load(f)
+                combined_data.append(data)
+        except Exception as e:
+            print(f"Error reading {file_path}: {e}")
+    
+    return combined_data
+
+def store_data(data:json) -> None:
+    """
+    Stores the extracted data into a JSON file.
+
+    :param data: Extracted data to be stored
+    :return: None
+    """
     # mkdir "data" if not exists
     data_dir = os.path.join(CONFIG['extraction_path'])
     mkdir_if_not_exists(data_dir)
     # Define the path to store the extracted data
-    data_file = os.path.join(data_dir, 'extracted_data.csv')
+    data_file = os.path.join(data_dir, 'extracted_data.json')
     # Check if file already exists
     if os.path.exists(data_file):
         os.remove(data_file)
-    # Save extracted data to a csv file
-    data.to_csv(data_file, index=False)
+    # Save extracted data 
+    with open(data_file, 'w') as f:
+        json.dump(data, f)
 
 # Extract program
 if __name__ == "__main__":
