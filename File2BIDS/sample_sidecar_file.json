@@ -26,7 +26,6 @@
     },
 
     "labels": {
-        "is_label": "yes/no",
         "file_id": "file hash",
         "hemisphere": "right",
         "structure": "vim",
@@ -35,7 +34,6 @@
     },
 
     "transformations": {
-        "is_transformation": "yes/no",
         "transformation_id": 1,
         "identity": "yes/no",
         "target_id": "hash of target file",

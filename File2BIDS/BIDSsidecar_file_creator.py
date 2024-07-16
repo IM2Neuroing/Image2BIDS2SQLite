@@ -507,8 +507,7 @@ class SidecarGenerator(QWidget):
         global file_list, info_dict_list, source_id, target_id, warp_id
 
         for i in range(len(file_list)):
-            file_folder = os.path.dirname(file_list[i])
-            json_path = f"{file_folder}/{info_dict_list[i]["bids"]["relative_sidecar_path"]}"
+            json_path = f"{file_list[i].split('.', 1)[0]}_sidecar.json"
             # Fill remaining dictionary fields
             info_dict_list[i]["bids"]["modality"] = self.text_modality.text()
             info_dict_list[i]["bids"]["protocol_name"] = self.text_protocol.text()
