@@ -17,7 +17,33 @@ data_dict = {
     "json": "JavaScript Object Notation"
 }
 
+def get_relative_path(file_path):
+    """
+    Function to extract the file path relative to the BIDS project folder. If neither "derivatives" nor "sub-" is found, return the original path
 
+    Args:
+        file_path: absolute file path
+    
+    Returns
+        rel_path: relative path if the path contains either the string 'derivatives' or 'sub-', otherwise original path
+        rel_path_found: bool indicating whether the relative path has been found
+    """
+    rel_path = file_path
+    rel_path_found = False
+    derivatives_index = file_path.find("derivatives")
+
+    if derivatives_index != -1:
+        # If "derivatives" is found, keep the path from "derivatives" onwards
+        rel_path = file_path[derivatives_index:]
+        rel_path_found = True
+    else:
+        sub_index = file_path.find("sub-")
+        if sub_index != -1:
+            # If "sub-" is found, keep the path from "sub-" onwards
+            rel_path = file_path[sub_index:]
+            rel_path_found = True
+    
+    return rel_path, rel_path_found
 
 
 def extract_info_from_filename(file, is_label=False, is_transformed = False):
@@ -50,6 +76,9 @@ def extract_info_from_filename(file, is_label=False, is_transformed = False):
     # Get only file name
     file_name = file.split('/')[-1]
 
+    # Get relative file path
+    rel_file_path, rel_path_found = get_relative_path(file)
+
     # Create file hash
     file_hash = calculate_hash(file)
 
@@ -78,7 +107,7 @@ def extract_info_from_filename(file, is_label=False, is_transformed = False):
         pass
 
     # Create sidecar file name
-    sidecar_file = f"{file_name.split('.', 1)[0]}_sidecar.json"
+    sidecar_file = f"{rel_file_path.split('.', 1)[0]}_sidecar.json"
 
     # Check if the extension is present in the datatype dictionary
     if extension in list(data_dict.keys()):
@@ -86,7 +115,7 @@ def extract_info_from_filename(file, is_label=False, is_transformed = False):
     else:
         datatype = "Unknown"
 
-    info_dict = {"files": {"file_id": file_hash, "subject_id": "", "electrode_id": "", "file_path": file,
+    info_dict = {"files": {"file_id": file_hash, "subject_id": "", "electrode_id": "", "file_path": rel_file_path,
         "file_type": file_type, "source_id": "", "transformation_id": ""}, "bids": {"file_id": file_hash,
         "modality": "", "protocol_name": "", "stereotactic": "", "dicom_image_type": "","acquisition_date_time": "", 
         "relative_sidecar_path": sidecar_file,"bids_subject": subject,"bids_session": session,"bids_extension": extension,
@@ -95,13 +124,13 @@ def extract_info_from_filename(file, is_label=False, is_transformed = False):
 
     # If it is a label add the label related fields to dictionary - some of them will be filled later through GUI
     if is_label:
-       label_dict = {"is_label": "yes", "file_id": file_hash, "hemisphere": hemisphere, \
+       label_dict = {"file_id": file_hash, "hemisphere": hemisphere, \
                      "structure": structure, "color": "", "comment": ""}
        info_dict["labels"] = label_dict
        
     # If the file has been transformed add related fields to dictionary - some of them will be filled later through GUI
     if is_transformed:
-       transformation_dict = {"is_transformation": "yes", "transformation_id":"", "identity":"", \
+       transformation_dict = {"transformation_id":"", "identity":"", \
                               "target_id": "", "transform_id": ""}
        info_dict["transformations"] = transformation_dict
     
