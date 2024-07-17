@@ -19,20 +19,39 @@ CONFIG = read_config_file(CONFIG_FILE_PATH)
 # Configure logger
 workflow_logger = logging.getLogger('workflow_logger')
 
-def load_sidecar_data():
+def load_sidecar_data()->None:
     """
     Function to load data into the destination database.
     """
+    ## CHECKS
+    # Check if config file is read successfully
+    if CONFIG is None:
+        workflow_logger.error("Config file not found or not read successfully.")
+        exit()
+    # Check if loading should be skipped
+    if CONFIG['skip_loading']:
+        workflow_logger.info("Loading is skipped as per config file.")
+        exit()
+    # Check if CONFIG extraction_path: filepath exists
+    sqlfile = os.path.join(CONFIG['extraction_path'], 'insertSideCarData.sql')
+    if not os.path.exists(sqlfile):
+        workflow_logger.error(f"Data path does not exist: {sqlfile}")
+        exit()
+    # Check if the database file path exists 
+    if not os.path.exists(CONFIG['db_path']):
+      workflow_logger.error(f"Database path does not exist: {CONFIG['db_path']}")
+      exit()
+
     ## DATA LOADING
     workflow_logger.info("Data loading started.")
-    load_siglefile_data_into_database()
+    load_siglefile_data_into_database(sqlfile,CONFIG['db_path'])
     workflow_logger.info("Data loaded into the database.")
 
     ## CHECK IF DATA LOADED
     data_check(CONFIG['db_path'])
 
 # Load data into database Function
-def load_siglefile_data_into_database():
+def load_siglefile_data_into_database(sql_file:str,db_path:str)->None:
     """
     Function to load the data into the destination database.
     Check if the sqlite database is created.
@@ -40,24 +59,12 @@ def load_siglefile_data_into_database():
     Execute the sql files to load the data into the database.
     """
 
-    # Check if the data should be loaded into the database
-    if CONFIG['db_load_data'] is True:
-      # Check if data_path CONFIG from file is valid
-      if CONFIG['data_path'] is None:
-        workflow_logger.error("No data path was specified in the config file")
-        exit()
-      # Check if the database path is valid
-      if CONFIG['db_path'] is None:
-        workflow_logger.error("No database path was specified in the config file")
-        exit()
-      # check for single sqlfile in the data folder: data/insertSideCarData.sql
-      if os.path.isfile(f"{CONFIG['data_path']}"):
-        sql_file = f"{CONFIG['data_path']}"
-        # Execute the SQL file
-        with open(sql_file, 'r') as file:
-          sql = file.read()
-          # Execute the SQL
-          execute_sql_script(sql,CONFIG['db_path'])
+    if os.path.isfile(db_path):
+      # Execute the SQL file
+      with open(sql_file, 'r') as file:
+        sql = file.read()
+        # Execute the SQL
+        execute_sql_script(sql, db_path)
 
       workflow_logger.debug("Data loaded into SQLite Database")
 
