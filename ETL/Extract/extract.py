@@ -22,55 +22,93 @@ workflow_logger = logging.getLogger('workflow_logger')
 CONFIG_FILE_PATH = 'config.json'
 CONFIG = read_config_file(CONFIG_FILE_PATH)
 
-def extract_sidecar_data():
+def extract_sidecar_data()-> json:
     """
     Function to extract data from all sidecar files from BIDS folder.
 
     Returns: data (pandas DataFrame): Extracted data from BIDS sidecar files.
     """ 
-    # Check if extraction path is provided
-    if CONFIG['datasystem_root'] is None or CONFIG['bids_dir_name'] is None:
-        workflow_logger.error("BIDS root path or BIDS directory name not provided in config file.")
+    ## CHECKS
+    # Check if config file is read successfully
+    if CONFIG is None:
+        workflow_logger.error("Config file not found or not read successfully.")
         exit()
-
+    # Check if extraction should be skipped
+    if CONFIG['skip_extraction']:
+        workflow_logger.info("Extraction is skipped as per config file.")
+        return None
+    # Check if extraction path and BIDS directory path exists
+    if not os.path.exists(CONFIG['extraction_path']):
+        workflow_logger.error(f"Extraction path does not exist: {CONFIG['extraction_path']}")
+        exit()
+    if not os.path.exists(CONFIG['bids_dir_path']):
+        workflow_logger.error(f"BIDS directory path does not exist: {CONFIG['bids_dir_path']}")
+        exit()
+        
     ## Extract data
     # get BIDS path and check if it exists
-    bids_path = os.path.join(CONFIG['datasystem_root'], CONFIG['bids_dir_name'])
+    bids_path = os.path.join(CONFIG['bids_dir_path'])
     if not os.path.exists(bids_path):
         workflow_logger.error(f"BIDS path does not exist: {bids_path}")
         exit()
-    # Get all image files
-    image_files = Path(bids_path).rglob('*.nii.gz')
-    # Get all sidecar files by replacing image "*.nii.gz" extension with *.json
-    sidecar_files = [str(file).replace('.nii.gz', '.json') for file in image_files]
+    # Get all sidecar files finding *_sidecar.json
+    sidecar_files = Path(bids_path).rglob('*_sidecar.json')
 
-    # Extract data from all sidecar files
-    data = pd.DataFrame()
-    for file in sidecar_files:
-        # Read the sidecar file
-        sidecar_data = pd.read_json(file, orient='index').T
-        data = pd.concat([data, sidecar_data], ignore_index=True)
+    # Extract data from all sidecar json files
+    data = combine_json_files(sidecar_files)
         
     # check if data is empty
-    if data.empty:
+    if data is None or len(data) == 0:
         workflow_logger.error("Extracted data is empty, no data will be processed")
         exit()
 
     ## Store data
     store_data(data)
-    workflow_logger.debug(f"Data stored successfully, path: {CONFIG['datasystem_root']}/SQLiteSetup/data/extracted_data.csv")
-
+    workflow_logger.debug(f"Data stored successfully, path: {CONFIG['extraction_path']}/extracted_data.json")
     workflow_logger.info(f"Data extracted:\n{data}")
     return data
 
-def store_data(data):
-    # mkdir "data" if not exists
-    data_dir = os.path.join(CONFIG['datasystem_root'],'SQLiteSetup/data')
-    mkdir_if_not_exists(data_dir)
+def combine_json_files(json_files:list)-> json:
+    """
+    Combines data from multiple JSON files into a single dictionary.
+    The dictionary has filenames as keys and the file data as values.
+    Also includes a 'sidecardata' key with the dict as values.
 
-    # Save extracted data to a csv file
-    data_file = os.path.join(data_dir, 'extracted_data.csv')
-    data.to_csv(data_file, index=False)
+    :param json_files: List of paths to JSON files
+    :return: Dictionary containing data from all JSON files
+    """
+    sidecarelements = {}
+    for file_path in json_files:
+        filename = os.path.basename(file_path)
+        try:
+            with open(file_path, 'r') as f:
+                data = json.load(f)
+                sidecarelements[filename] = data
+            
+        except Exception as e:
+            print(f"Error reading {file_path}: {e}")
+
+    combined_data = {'sidecardata': sidecarelements}
+    return combined_data
+
+def store_data(data:json) -> None:
+    """
+    Stores the extracted data into a JSON file.
+
+    :param data: Extracted data to be stored
+    :return: None
+    """
+    # mkdir "data" if not exists
+    data_dir = os.path.join(CONFIG['extraction_path'])
+    mkdir_if_not_exists(data_dir)
+    # Define the path to store the extracted data
+    data_file = os.path.join(data_dir, 'extracted_data.json')
+    # Check if file already exists
+    if os.path.exists(data_file):
+        os.remove(data_file)
+    # Save extracted data 
+    with open(data_file, 'w') as f:
+        json.dump(data, f)
 
 # Extract program
 if __name__ == "__main__":
