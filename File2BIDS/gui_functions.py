@@ -115,7 +115,14 @@ def extract_info_from_filename(file, is_label=False, is_transformed = False):
     else:
         datatype = "Unknown"
 
-    info_dict = {"files": {"file_id": file_hash, "subject_id": "", "electrode_id": "", "file_path": rel_file_path,
+    # Check if the file belongs to an electrode - in this case copy the subject name in electrode_id
+    elec_index = file.find("Electrodes")
+    if elec_index != -1: # The subject is an electrode
+       elec_name = subject
+    else:
+       elec_name = ""
+    
+    info_dict = {"files": {"file_id": file_hash, "subject_id": "", "electrode_id": elec_name, "file_path": rel_file_path,
         "file_type": file_type, "source_id": "", "transformation_id": ""}, "bids": {"file_id": file_hash,
         "modality": "", "protocol_name": "", "stereotactic": "", "dicom_image_type": "","acquisition_date_time": "", 
         "relative_sidecar_path": sidecar_file,"bids_subject": subject,"bids_session": session,"bids_extension": extension,
