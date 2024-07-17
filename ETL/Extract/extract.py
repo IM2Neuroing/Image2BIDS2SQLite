@@ -70,21 +70,25 @@ def extract_sidecar_data()-> json:
 
 def combine_json_files(json_files:list)-> json:
     """
-    Combines data from multiple JSON files into a single list.
+    Combines data from multiple JSON files into a single dictionary.
+    The dictionary has filenames as keys and the file data as values.
+    Also includes a 'sidecardata' key with the dict as values.
 
     :param json_files: List of paths to JSON files
-    :return: List containing data from all JSON files
+    :return: Dictionary containing data from all JSON files
     """
-    combined_data = []
-
+    sidecarelements = {}
     for file_path in json_files:
+        filename = os.path.basename(file_path)
         try:
             with open(file_path, 'r') as f:
                 data = json.load(f)
-                combined_data.append(data)
+                sidecarelements[filename] = data
+            
         except Exception as e:
             print(f"Error reading {file_path}: {e}")
-    
+
+    combined_data = {'sidecardata': sidecarelements}
     return combined_data
 
 def store_data(data:json) -> None:
