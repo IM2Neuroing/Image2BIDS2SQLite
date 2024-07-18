@@ -1,0 +1,14 @@
+Table,Attribute,NotNull,field_name
+bids,file_id,NOT NULL,file_id
+bids,modality,,modality
+bids,protocol_name,,protocol_name
+bids,stereotactic,,stereotactic
+bids,dicom_image_type,,dicom_image_type
+bids,acquisition_date_time,,AUTO
+bids,relative_sidecar_path,,"FUNC(file_path;str('xVARIABLEx').replace('.nii.gz', '.json'))"
+bids,bids_subject,,bids_subject
+bids,bids_session,,bids_session
+bids,bids_datatype,,bids_datatype
+bids,bids_acquisition,,bids_acquisition
+bids,bids_suffix,,bids_suffix
+bids,bids_extension,,bids_extension

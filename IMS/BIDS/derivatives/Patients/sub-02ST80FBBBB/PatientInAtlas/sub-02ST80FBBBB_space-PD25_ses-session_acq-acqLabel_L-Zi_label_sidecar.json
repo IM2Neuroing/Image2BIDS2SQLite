@@ -1,0 +1,39 @@
+{
+    "files": {
+        "file_id": "170a6f1c89b461f804e607d7354e0807ea3f9a052be65716a2dac1d99dbadd96",
+        "subject_id": "7.0",
+        "electrode_id": "None",
+        "file_path": "derivatives/Patients/sub-02ST80FBBBB/PatientInAtlas/sub-02ST80FBBBB_space-PD25_ses-session_acq-acqLabel_L-Zi_label.nii.gz",
+        "file_type": "PatientInAtlas",
+        "source_id": "04a5cf9afd133f94f89d867da379896f1bab9a042a994212ff9d6b6e9b6b1255",
+        "transformation_id": "1"
+    },
+    "bids": {
+        "file_id": "170a6f1c89b461f804e607d7354e0807ea3f9a052be65716a2dac1d99dbadd96",
+        "modality": "None",
+        "protocol_name": "None",
+        "stereotactic": "no",
+        "dicom_image_type": "None",
+        "acquisition_date_time": "10-07-2024",
+        "relative_sidecar_path": "derivatives/Patients/sub-02ST80FBBBB/PatientInAtlas/sub-02ST80FBBBB_space-PD25_ses-session_acq-acqLabel_L-Zi_label_sidecar.json",
+        "bids_subject": "02ST80FBBBB",
+        "bids_session": "session",
+        "bids_extension": "nii.gz",
+        "bids_datatype": "NifTI",
+        "bids_acquisition": "acqLabel",
+        "bids_suffix": "label"
+    },
+    "labels": {
+        "file_id": "170a6f1c89b461f804e607d7354e0807ea3f9a052be65716a2dac1d99dbadd96",
+        "hemisphere": "L",
+        "structure": "Zi",
+        "color": "red",
+        "comment": "None"
+    },
+    "transformations": {
+        "transformation_id": "1",
+        "identity": "no",
+        "target_id": "5d83d486e2b3d935b41636cbd15fc0f078ace77a6a81b0659dd14fb06ebe565c",
+        "transform_id": "d964207a84cdbcf6a8d3890e8dab5fbb2cae5118aa84a91c45d0a1567de9eaa5"
+    }
+}

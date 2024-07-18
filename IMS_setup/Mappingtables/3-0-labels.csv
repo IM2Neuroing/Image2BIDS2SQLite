@@ -1,0 +1,6 @@
+Table,Attribute,NotNull,field_name
+labels,file_id,NOTNULL,file_id
+labels,hemisphere,NOTNULL,hemisphere
+labels,structure,NOTNULL,structure
+labels,color,,
+labels,comment,,

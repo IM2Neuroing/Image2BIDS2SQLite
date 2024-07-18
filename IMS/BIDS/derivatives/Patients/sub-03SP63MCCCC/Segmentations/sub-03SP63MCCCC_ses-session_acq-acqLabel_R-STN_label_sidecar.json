@@ -1,0 +1,33 @@
+{
+    "files": {
+        "file_id": "52be8209965280a123b12e45c743fdf2b8e6260ea3994ed73713fad156f5ad11",
+        "subject_id": "8.0",
+        "electrode_id": "None",
+        "file_path": "derivatives/Patients/sub-03SP63MCCCC/Segmentations/sub-03SP63MCCCC_ses-session_acq-acqLabel_R-STN_label.nii.gz",
+        "file_type": "Segmentations",
+        "source_id": "None",
+        "transformation_id": ""
+    },
+    "bids": {
+        "file_id": "52be8209965280a123b12e45c743fdf2b8e6260ea3994ed73713fad156f5ad11",
+        "modality": "MR",
+        "protocol_name": "protocolLabel",
+        "stereotactic": "no",
+        "dicom_image_type": "None",
+        "acquisition_date_time": "10-07-2024",
+        "relative_sidecar_path": "derivatives/Patients/sub-03SP63MCCCC/Segmentations/sub-03SP63MCCCC_ses-session_acq-acqLabel_R-STN_label_sidecar.json",
+        "bids_subject": "03SP63MCCCC",
+        "bids_session": "session",
+        "bids_extension": "nii.gz",
+        "bids_datatype": "NifTI",
+        "bids_acquisition": "acqLabel",
+        "bids_suffix": "label"
+    },
+    "labels": {
+        "file_id": "52be8209965280a123b12e45c743fdf2b8e6260ea3994ed73713fad156f5ad11",
+        "hemisphere": "R",
+        "structure": "STN",
+        "color": "red",
+        "comment": "None"
+    }
+}
