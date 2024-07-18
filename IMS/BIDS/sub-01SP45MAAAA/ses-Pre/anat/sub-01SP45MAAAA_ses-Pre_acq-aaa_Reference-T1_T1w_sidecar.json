@@ -1,0 +1,26 @@
+{
+    "files": {
+        "file_id": "4a99e3c4a258f99290f6c5efbd7e89e6afe5ce69d33478751a6e8b5895cee374",
+        "subject_id": "6.0",
+        "electrode_id": "None",
+        "file_path": "sub-01SP45MAAAA/ses-Pre/anat/sub-01SP45MAAAA_ses-Pre_acq-aaa_Reference-T1_T1w.nii.gz",
+        "file_type": "anat",
+        "source_id": "None",
+        "transformation_id": ""
+    },
+    "bids": {
+        "file_id": "4a99e3c4a258f99290f6c5efbd7e89e6afe5ce69d33478751a6e8b5895cee374",
+        "modality": "MR T1",
+        "protocol_name": "protocol",
+        "stereotactic": "yes",
+        "dicom_image_type": "None",
+        "acquisition_date_time": "06-03-2024",
+        "relative_sidecar_path": "sub-01SP45MAAAA/ses-Pre/anat/sub-01SP45MAAAA_ses-Pre_acq-aaa_Reference-T1_T1w_sidecar.json",
+        "bids_subject": "01SP45MAAAA",
+        "bids_session": "Pre",
+        "bids_extension": "nii.gz",
+        "bids_datatype": "NifTI",
+        "bids_acquisition": "aaa",
+        "bids_suffix": "T1w"
+    }
+}

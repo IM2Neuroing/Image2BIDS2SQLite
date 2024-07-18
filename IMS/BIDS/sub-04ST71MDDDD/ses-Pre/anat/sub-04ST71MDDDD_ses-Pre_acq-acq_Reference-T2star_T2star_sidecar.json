@@ -1,0 +1,26 @@
+{
+    "files": {
+        "file_id": "acf30bc858021abdeee66a42b9d60df0fec07ee1522e3de2fde29c9c635a4a5f",
+        "subject_id": "9.0",
+        "electrode_id": "None",
+        "file_path": "sub-04ST71MDDDD/ses-Pre/anat/sub-04ST71MDDDD_ses-Pre_acq-acq_Reference-T2star_T2star.nii.gz",
+        "file_type": "anat",
+        "source_id": "None",
+        "transformation_id": ""
+    },
+    "bids": {
+        "file_id": "acf30bc858021abdeee66a42b9d60df0fec07ee1522e3de2fde29c9c635a4a5f",
+        "modality": "MR T2",
+        "protocol_name": "protocol2",
+        "stereotactic": "yes",
+        "dicom_image_type": "None",
+        "acquisition_date_time": "01-07-2019",
+        "relative_sidecar_path": "sub-04ST71MDDDD/ses-Pre/anat/sub-04ST71MDDDD_ses-Pre_acq-acq_Reference-T2star_T2star_sidecar.json",
+        "bids_subject": "04ST71MDDDD",
+        "bids_session": "Pre",
+        "bids_extension": "nii.gz",
+        "bids_datatype": "NifTI",
+        "bids_acquisition": "acq",
+        "bids_suffix": "T2star"
+    }
+}
