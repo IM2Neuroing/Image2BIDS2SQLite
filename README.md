@@ -6,11 +6,16 @@ This repository is a collection of workflows, pipelines and python-tools to extr
 
 ## The different Pipelines & Workflows
 
-- Fil2BIDS (APP with GUI)
-- ETL (Extract, Transform, Load) workflows:
+- *Fil2BIDS* (APP with GUI)
+  - GUI-supported pipeline to move/copy files in a BIDS project folder following the BIDS naming standard and generate the json sidecar files with the relevant file metadata. Applicable to all file types
+   
+- *ETL* (Extract, Transform, Load) workflows:
   - NIFTI to BIDS conversion (wf_NIFTI2BIDS.py) (under development)
+    -  The ETL process extracts NIFTI images from the 4bids folder, renames them according to the Brain Imaging Data Structure (BIDS) standard, and then loads the renamed files into a newly constructed BIDS-compliant directory. This ensures the data adheres to the BIDS standard for consistent and organized neuroimaging data storage.
   - Slicer BIDS integration (wf_Slicer2BIDS.py) (under development)
+    - The ETL process extracts 3D Slicer scene images from the 4bids folder, renames them following the Brain Imaging Data Structure (BIDS) standard, and loads the renamed files into a newly created BIDS-compliant directory. This process ensures that the neuroimaging data is consistently organized and adheres to the BIDS specifications.
   - BIDS to SQLite (wf_BIDS2SQLite.py) (stable)
+    - The ETL process extracts metadata from the sidecar files (IMAGE_sidecar.json) in a BIDS directory and stores this information in an SQLite database located within the Image Management System directory. This ensures the metadata is organized and accessible for efficient image management and retrieval.
 
 ## Folder Structure
 
