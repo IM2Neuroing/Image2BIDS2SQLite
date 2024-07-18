@@ -8,7 +8,7 @@ Since both steps require some manual input from the user, both application have 
 
 ## Requirements
 - Python 3.x
-    - pyqt6
+    - PyQt6==6.7.0
 
 ## convert_to_BIDS.py
 Script for a GUI allowing to organize one or more selected files in a BIDS-complieant folder structure. The main steps are:
