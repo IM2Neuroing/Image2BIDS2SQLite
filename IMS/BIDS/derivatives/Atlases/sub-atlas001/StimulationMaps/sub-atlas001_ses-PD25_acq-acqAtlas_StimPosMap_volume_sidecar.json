@@ -1,0 +1,26 @@
+{
+    "files": {
+        "file_id": "2247a0d05777c679527f99471063ed76db697e6bb313440420ee0ff70034655b",
+        "subject_id": "",
+        "electrode_id": "None",
+        "file_path": "derivatives/Atlases/sub-atlas001/StimulationMaps/sub-atlas001_ses-PD25_acq-acqAtlas_StimPosMap_volume.nii.gz",
+        "file_type": "StimulationMaps",
+        "source_id": "None",
+        "transformation_id": ""
+    },
+    "bids": {
+        "file_id": "2247a0d05777c679527f99471063ed76db697e6bb313440420ee0ff70034655b",
+        "modality": "None",
+        "protocol_name": "None",
+        "stereotactic": "no",
+        "dicom_image_type": "None",
+        "acquisition_date_time": "10-07-2024",
+        "relative_sidecar_path": "derivatives/Atlases/sub-atlas001/StimulationMaps/sub-atlas001_ses-PD25_acq-acqAtlas_StimPosMap_volume_sidecar.json",
+        "bids_subject": "atlas001",
+        "bids_session": "PD25",
+        "bids_extension": "nii.gz",
+        "bids_datatype": "NifTI",
+        "bids_acquisition": "acqAtlas",
+        "bids_suffix": "volume"
+    }
+}

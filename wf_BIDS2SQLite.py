@@ -1,7 +1,7 @@
 from ETL.Extract.extract import extract_sidecar_data
 from ETL.Transform.transform import transform_sidecar_data
-from ETL.Load.load import load_sidecar_data
-from ETL.PostTransform.post_transformation import clean_image_tables,backpropation
+from ETL.Load.load import load_sidecar_data, database_setup
+from ETL.PostTransform.post_transformation import update_transformation_id, backpropation
 
 import logging
 
@@ -21,16 +21,12 @@ def workflow_BIDS2SQLite():
     transform_sidecar_data(extracted_data)
     workflow_logger.info("Data transformed successfully.")
 
+    # Create database
+    database_setup()
+
     # Load data
     load_sidecar_data()
     workflow_logger.info("Workflow finished successfully.")
-
-    # Post Transformation
-    clean_image_tables()
-    
-    # Backpropagation to BIDS
-    backpropation()
-
 
 # Main program
 if __name__ == "__main__":

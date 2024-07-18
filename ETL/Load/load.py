@@ -19,6 +19,32 @@ CONFIG = read_config_file(CONFIG_FILE_PATH)
 # Configure logger
 workflow_logger = logging.getLogger('workflow_logger')
 
+# Database setup Function
+def database_setup():
+    """
+    Function to create a new SQLite database if the config file specifies it.
+    """
+    ## CHECKS
+    # Check if config file is read successfully
+    if CONFIG is None:
+      workflow_logger.error("Config file not found or not read successfully.")
+      exit()
+    # Check if a new database should be created
+    if CONFIG['skip_db_creation']:
+      workflow_logger.info("Database creation is skipped as per config file.")
+    # Check if db_path in CONFIG is valid path [db_path remove the file name]
+    db_dir_path = os.path.dirname(CONFIG['db_path']) 
+    if not os.path.exists(db_dir_path):
+      workflow_logger.error("Directory path for the Database does not exist: %s", CONFIG['db_path'])
+      exit()
+    # Check if db_schema CONFIG from file is valid
+    if not os.path.exists(CONFIG['db_schema']):
+      workflow_logger.error("Database schema file does not exist: %s", CONFIG['db_schema'])
+      exit()
+
+    ## DATABASE CREATION
+    create_database(CONFIG['db_path'], CONFIG['db_schema'])
+
 def load_sidecar_data()->None:
     """
     Function to load data into the destination database.
@@ -77,6 +103,9 @@ if __name__ == "__main__":
     formatter = logging.Formatter('%(asctime)-20s - %(levelname)-10s - %(filename)-25s - %(funcName)-25s %(message)-50s')
     file_handler1.setFormatter(formatter)
     workflow_logger.addHandler(file_handler1)
+
+    # Create database
+    database_setup()
 
     # Load data
     load_sidecar_data()

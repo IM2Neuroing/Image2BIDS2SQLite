@@ -1,0 +1,8 @@
+Table,Attribute,NotNull,field_name
+files,file_id,NOT NULL,file_id
+files,subject_id,,subject_id
+files,electrode_id,,AUTO
+files,file_path,NOT NULL,file_path
+files,file_type,NOT NULL,file_type
+files,source_id,,file_origin
+files,transformation_id,,AUTO

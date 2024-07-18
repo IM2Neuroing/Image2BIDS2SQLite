@@ -1,0 +1,33 @@
+{
+    "files": {
+        "file_id": "3ee19e8c166551620f4a612e5c10486fdb295f98aa038f350a2054be0ded617b",
+        "subject_id": "",
+        "electrode_id": "None",
+        "file_path": "derivatives/Atlases/sub-atlas001/Segmentations/sub-atlas001_ses-PD25_acq-acqAtlas_L-Thal_label.nii.gz",
+        "file_type": "Segmentations",
+        "source_id": "None",
+        "transformation_id": ""
+    },
+    "bids": {
+        "file_id": "3ee19e8c166551620f4a612e5c10486fdb295f98aa038f350a2054be0ded617b",
+        "modality": "None",
+        "protocol_name": "None",
+        "stereotactic": "no",
+        "dicom_image_type": "None",
+        "acquisition_date_time": "10-07-2024",
+        "relative_sidecar_path": "derivatives/Atlases/sub-atlas001/Segmentations/sub-atlas001_ses-PD25_acq-acqAtlas_L-Thal_label_sidecar.json",
+        "bids_subject": "atlas001",
+        "bids_session": "PD25",
+        "bids_extension": "nii.gz",
+        "bids_datatype": "NifTI",
+        "bids_acquisition": "acqAtlas",
+        "bids_suffix": "label"
+    },
+    "labels": {
+        "file_id": "3ee19e8c166551620f4a612e5c10486fdb295f98aa038f350a2054be0ded617b",
+        "hemisphere": "L",
+        "structure": "Thal",
+        "color": "yellow",
+        "comment": "None"
+    }
+}
