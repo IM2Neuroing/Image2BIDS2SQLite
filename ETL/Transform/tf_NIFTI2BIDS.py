@@ -5,7 +5,6 @@ import logging
 import pandas as pd
 import os
 import shutil
-from bids import BIDSLayout
 
 # Configure logger
 workflow_logger = logging.getLogger('workflow_logger')
