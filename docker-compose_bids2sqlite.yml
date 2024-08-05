@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   image2sqlite:
-    image: ghcr.io/im2neuroing/image2bids2sqlite:main 
+    image: ghcr.io/im2neuroing/image2bids2sqlite:main-BIDS2SQLite
     volumes:
       # folder to mount
       - ./IMS/:/app/IMS/ #Image management System folder which contains the BIDS folder
