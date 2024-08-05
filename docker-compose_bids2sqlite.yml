@@ -2,9 +2,7 @@ version: '3.8'
 
 services:
   image2sqlite:
-    build:
-      context: .
-      dockerfile: dockerfile_bids2sqlite
+    image: ghcr.io/im2neuroing/image2bids2sqlite:main 
     volumes:
       # folder to mount
       - ./IMS/:/app/IMS/ #Image management System folder which contains the BIDS folder

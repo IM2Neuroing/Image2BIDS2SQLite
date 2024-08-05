@@ -1,0 +1,21 @@
+{   
+    "__MAIN__config" : "version 1.1",
+    "repository_root": "",
+    "datasystem_root": "IMS",
+    "bids_dir_path": "IMS/BIDS",
+    "__BIDS_2_SQLite__config":"2.0",
+    "__EXTRACT__config": "1.0",
+    "skip_extraction": false,
+    "extraction_path" : "setup",
+    "__TRANSFORM__config": "1.0",
+    "skip_transformation": false,
+    "skip_db_creation" : false,
+    "db_schema": "sqlite_schema.sql",
+    "__LOAD__config": "1.0",
+    "skip_loading": false,
+    "db_path": "IMS/IMS.db",
+    "__IMAGE_CLEANING__config": "1.0",
+    "skip_image_cleaning" : false,
+    "__BACKPROPAGATION__config":"1.0",
+    "skip_backpropagation": false
+}
