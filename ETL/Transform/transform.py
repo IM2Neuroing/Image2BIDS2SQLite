@@ -45,10 +45,6 @@ def transform_sidecar_data(data: json) -> None:
     if data is None or len(data) == 0:
         workflow_logger.error("Data is empty, no data will be transformed")
         exit()
-    # Check if mapping data path exists
-    if not os.path.exists(CONFIG['mapping_dir_path']):
-        workflow_logger.error(f"Mapping data path does not exist: {CONFIG['mapping_dir_path']}")
-        exit()
     # Check if extraction path exists
     if not os.path.exists(CONFIG['extraction_path']):
         workflow_logger.error(f"Extraction path does not exist: {CONFIG['extraction_path']}")
