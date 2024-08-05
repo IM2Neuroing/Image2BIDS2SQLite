@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  image2sqlite:
+    build:
+      context: .
+      dockerfile: dockerfile_bids2sqlite
+    volumes:
+      # folder to mount
+      - ./IMS/:/app/IMS/ #Image management System folder which contains the BIDS folder
+      # file to mount needed for the configuration
+      - ./config_docker.json:/app/config.json:ro
+      # file to mount needed for the schema (optional)
+      - ./IMS_setup/SQLite_setup/sqlite_schema.sql:/app/sqlite_schema.sql:ro
+
+      # OPTIONAL: if you want to mount the output folder
+      - ./IMS_setup/SQLite_setup/setup/:/app/setup/  #    "extraction_path" : "/IMS_setup/SQLite_setup",
+
+
+    environment:
+      # set the environment variables
+      - PYTHONUNBUFFERED=1
+
+
