@@ -161,3 +161,7 @@ cython_debug/
 config.json
 config*.json
 playground.ipynb
+config_docker.json
+IMS/IMS.db
+.vscode
+IMS_setup/SQLite_setup/setup
