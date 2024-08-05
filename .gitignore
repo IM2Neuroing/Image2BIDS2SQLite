@@ -160,6 +160,7 @@ cython_debug/
 #.idea/
 config.json
 config*.json
+!config*_example.json
 playground.ipynb
 config_docker.json
 IMS/IMS.db
