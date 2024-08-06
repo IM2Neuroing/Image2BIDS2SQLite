@@ -1,0 +1,61 @@
+name: Build Executables
+
+on:
+  push:
+    branches:
+      - main
+      - developActionsforExecutables
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-ubuntu:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Install PyInstaller
+        run: pip install pyinstaller
+
+      - name: Change Dir
+        run: cd File2BIDS/Executables/BIDSConverter
+
+      - name: Build executable
+        run: pyinstaller --onefile --noconsole convert_to_BIDS.py
+
+      - name: Change Dir
+        run: cd ../SidecarCreator
+      
+      - name: Build 2nd executable
+        run: pyinstaller --onefile --noconsole BIDSsidecar_file_creator.py
+      
+      - name: Change Dir
+        run: cd ../../..
+    
+      - name: make dist directory
+        run: mkdir dist/linux
+
+      - name: Move executables
+        run: cp File2BIDS/Executables/BIDSConverter/dist/convert_to_BIDS dist/linux
+      
+      - name: Move 2. exe
+        run:  cp File2BIDS/Executables/SidecarCreator/dist/BIDSsidecar_file_creator dist/linux
+
+      - name: Move image
+        run: cp File2BIDS/fhnw_logo.png dist/linux
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: linux-executable
+          path: dist/linux
