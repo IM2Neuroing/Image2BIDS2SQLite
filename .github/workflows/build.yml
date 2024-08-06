@@ -30,6 +30,9 @@ jobs:
       - name: Change Dir
         run: cd File2BIDS/Executables/BIDSConverter
 
+      - name: list files
+        run: ls
+
       - name: Build executable
         run: pyinstaller --onefile --noconsole convert_to_BIDS.py
 
