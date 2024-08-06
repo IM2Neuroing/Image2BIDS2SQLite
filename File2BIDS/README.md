@@ -1,5 +1,12 @@
 # File2BIDS
 
+The File2BIDS app is a tool that allows users to save files with a naming convention and folder structure that follows the Brain Imaging Data Structure (BIDS) standard. The app consists of two tools that can be used in sequence or individually:
+
+1. `convert_to_BIDS.py`: This tool allows users to move or copy files to a selected BIDS project folder while renaming the files according to the standard and organizing them in the correct folder structure.
+2. `BIDSsidecar_file_creator.py`: This tool allows users to generate JSON sidecar files for files named according to BIDS. The metadata fields populated in the sidecar file are reported in `samplefile_sidecar.json`.
+
+Both tools have a GUI that guides the user through the process and require some manual input from the user. The tools are designed to help users organize and manage neuroimaging data in a consistent and standardized manner. The executables of the tools can be found in the repository's [Releases](https://github.com/IM2Neuroing/Image2BIDS2SQLite/releases/tag/v1.0.0). To run the executables, download the appropriate file for your operating system and allow them to run on your system.
+
 ## Folder overview
 The tools contained in this folder allow to save files with a naming convention and folder structure which follows the Brain Imaging Data Structure standard (Gorgolewski, K. J., Auer, T., Calhoun, V. D., Craddock, R. C., Das, S., Duff, E. P., et al. (2016). The brain imaging data structure, a format for organizing and describing outputs of neuroimaging experiments. Sci. Data 3, 160044. doi: 10.1038/sdata.2016.44). This operation can be split into 2 steps, performed through 2 separate tools which can be used in sequence or individually:
 1) convert_to_BIDS.py allows to move or copy files to a selected BIDS project folder while renaming the files according to the standard and organizing them in the correct folder structure
