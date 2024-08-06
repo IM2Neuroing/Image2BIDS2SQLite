@@ -7,7 +7,7 @@ This repository is a collection of workflows, pipelines and python-tools to extr
 ## The different Pipelines & Workflows
 
 - *Fil2BIDS* (APP with GUI)
-  - GUI-supported pipeline to move/copy files in a BIDS project folder following the BIDS naming standard and generate the json sidecar files with the relevant file metadata. Applicable to all file types
+  - GUI-supported pipeline to move/copy files in a BIDS project folder following the BIDS naming standard and generate the json sidecar files with the relevant file metadata. 
    
 - *ETL* (Extract, Transform, Load) workflows:
   - NIFTI to BIDS conversion (wf_NIFTI2BIDS.py) (under development)
