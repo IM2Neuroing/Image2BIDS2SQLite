@@ -27,26 +27,20 @@ jobs:
       - name: Install PyInstaller
         run: pip install pyinstaller
 
-      - name: Change Dir
-        run: cd File2BIDS/Executables/BIDSConverter
-
       - name: list files
         run: ls
 
       - name: Build executable
-        run: pyinstaller --onefile --noconsole convert_to_BIDS.py
-
-      - name: Change Dir
-        run: cd ../SidecarCreator
+        run: pyinstaller --onefile --noconsole File2BIDS/Executables/BIDSConverter/convert_to_BIDS.py
       
       - name: Build 2nd executable
-        run: pyinstaller --onefile --noconsole BIDSsidecar_file_creator.py
-      
-      - name: Change Dir
-        run: cd ../../..
-    
+        run: pyinstaller --onefile --noconsole File2BIDS/Executables/SidecarCreator/BIDSsidecar_file_creator.py
+          
       - name: make dist directory
         run: mkdir dist/linux
+
+      - name: List files
+        run: ls
 
       - name: Move executables
         run: cp File2BIDS/Executables/BIDSConverter/dist/convert_to_BIDS dist/linux
