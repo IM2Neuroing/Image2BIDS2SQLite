@@ -1,0 +1,64 @@
+name: Build and Release Executables windows
+
+on:
+  push:
+    branches:
+      - main
+      - developActionsforExecutables
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Install PyInstaller
+        run: pip install pyinstaller
+
+      - name: list files
+        run: ls
+
+      - name: Build executable
+        run: pyinstaller --onefile --noconsole File2BIDS/Executables/BIDSConverter/convert_to_BIDS.py
+      
+      - name: Build 2nd executable
+        run: pyinstaller --onefile --noconsole File2BIDS/Executables/SidecarCreator/BIDSsidecar_file_creator.py
+          
+      - name: make dist directory
+        run: mkdir dist/windows
+
+      - name: List files
+        run: ls dist
+
+      - name: Move executables
+        run: mv dist/convert_to_BIDS.exe dist/windows
+      
+      - name: Move 2. exe
+        run:  mv dist/BIDSsidecar_file_creator.exe dist/windows
+
+      - name: Move image
+        run: cp File2BIDS/fhnw_logo.png dist/windows
+
+      - name: List files
+        run: ls dist/windows
+
+      - name: list files
+        run: ls 
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: File2BIDS-windows-exe
+          path: dist/windows
