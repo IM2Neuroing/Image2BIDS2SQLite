@@ -481,51 +481,76 @@ class BIDSConverter(QWidget):
         # Get file extension from original file name
         original_file_name = original_files_list[0]
         ext = original_file_name.split('.')[-1]
-        # Get the inputs from GUI
-        subj_acr = self.text_subj_acr.text().split(',')
-        session = self.text_session.text().split(',')
-        acquisition = self.text_acquisition.text().split(',')
-        file_name = self.text_file_name.text().split(',')
+        # Get the inputs from GUI: if the text field is not empty we get a list of strings, otherwise an empty string
+        subj_acr = self.text_subj_acr.text().split(',') if self.text_subj_acr.text().strip() else []
+        session = self.text_session.text().split(',') if self.text_session.text().strip() else []
+        acquisition = self.text_acquisition.text().split(',') if self.text_acquisition.text().strip() else []
+        file_name = self.text_file_name.text().split(',') if self.text_file_name.text().strip() else []
 
-        fields_to_check = [subj_acr, session, acquisition, file_name]
-        fields_to_check_names = ["subject acronym", "session", "acquisition", "file name"]
+        fields_to_check = [subj_acr, file_name, session, acquisition]
+        fields_to_check_names = ["subject acronym", "file name", "session", "acquisition"]
     
         # Check that the suffix and file type fields are not empty
         if (suffix.strip() and file_type.strip()):
             # Check that the subj_acr, session, acquisition, file name fields have either 1 or n_orig_files element(s)
             for j in range(len(fields_to_check)):
-                if ((len(fields_to_check[j]) != 1) and (len(fields_to_check[j]) != n_orig_files)):
-                    QMessageBox.information(self, "Error", f"You provided {len(fields_to_check[j])} {fields_to_check_names[j]}. Please provide 1 or {n_orig_files}")
-                    return
-                # If there is only one value provided multiply the value to create list
+                # Get the current field and its name
+                field = fields_to_check[j]
+                field_name = fields_to_check_names[j]
+                # Define conditions based on the flag
+                if field_name in ["session", "acquisition"]:
+                    # Allow zero length for session and acquisition if the file is a derivative
+                    if self.checkbox_derivative.isChecked():
+                        if (len(field) != 0) and (len(field) != 1) and (len(field) != n_orig_files):
+                            QMessageBox.information(self, "Error", f"You provided {len(field)} {field_name}. Please provide 0, 1, or {n_orig_files}")
+                            return
+                    else:
+                        if (len(field) != 1) and (len(field) != n_orig_files):
+                            QMessageBox.information(self, "Error", f"You provided {len(field)} {field_name}. Please provide 1 or {n_orig_files}")
+                            return
+                else:
+                    if (len(field) != 1) and (len(field) != n_orig_files):
+                        QMessageBox.information(self, "Error", f"You provided {len(field)} {field_name}. Please provide 1 or {n_orig_files}")
+                        return
+                # If there is only one value provided multiply the value to create list, if the list is empty create a list with n_orig_files empty spaces
                 if (len(fields_to_check[j]) == 1):
                     fields_to_check[j] = fields_to_check[j] * n_orig_files
+                elif (len(fields_to_check[j]) == 0):
+                    fields_to_check[j] = ' ' * n_orig_files
+            
             subj_acr = fields_to_check[0]
-            session = fields_to_check[1]
-            acquisition = fields_to_check[2]
-            file_name = fields_to_check[3]
+            file_name = fields_to_check[1]
+            session = fields_to_check[2]
+            acquisition = fields_to_check[3]
 
-            # If we have a derivative
+            # If we have a derivative: session, acquisition and space could be empty
             if self.checkbox_derivative.isChecked():
                 subj_type = self.combobox_subj_type.currentText()
-                space = self.text_space.text().split(',')
+                space = self.text_space.text().split(',') if self.text_space.text().strip() else []
                 # Compose the BIDS derivative file path
                 deriv_folder = f"{bids_folder}/derivatives"
                 # Check that the number of space elements is 0, 1 or n_orig_files
                 if ((len(space) != 1) and (len(space) != n_orig_files) and (len(space) != 0)):
                     QMessageBox.information(self, "Error", f"You provided {len(space)} spaces. Please provide 0, 1 or {n_orig_files}")
+                    return
                 else:
                     # If there is only one space provided multiply the value to create list
                     if (len(space)==1):
                         space = space * n_orig_files
+                    elif (len(space) == 0):
+                        space = ' ' * n_orig_files
                     # Loop through the original files and generate new names
                     for i in range(n_orig_files):
                         # Get file extension from original file name
                         ext = original_files_list[i].split('.',1)[1]
+                        deriv_file_name = f"sub-{subj_acr[i]}"
                         if (space[i] != '' and space[i] != ' '):
-                            deriv_file_name = f"sub-{subj_acr[i]}_space-{space[i]}_ses-{session[i]}_acq-{acquisition[i]}_{file_name[i]}_{suffix}.{ext}"
-                        else:
-                            deriv_file_name = f"sub-{subj_acr[i]}_ses-{session[i]}_acq-{acquisition[i]}_{file_name[i]}_{suffix}.{ext}"
+                            deriv_file_name += f"_space-{space[i]}"
+                        if (session[i] != '' and session[i] != ' '):
+                            deriv_file_name += f"_ses-{session[i]}"
+                        if (acquisition[i] != '' and acquisition[i] != ' '):
+                            deriv_file_name += f"_acq-{acquisition[i]}"
+                        deriv_file_name += f"_{file_name[i]}_{suffix}.{ext}"
                         file_path = f"{deriv_folder}/{subj_type}/sub-{subj_acr[i]}/{file_type}/{deriv_file_name}"
                         # Add newly generated file path to list 
                         bids_files_list.append(file_path)
