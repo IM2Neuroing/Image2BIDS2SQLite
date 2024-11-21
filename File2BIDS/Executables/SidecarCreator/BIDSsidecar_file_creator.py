@@ -408,9 +408,12 @@ class SidecarGenerator(QWidget):
         """
         Function to clear the file list and reset the GUI to initialization status
         """
-        global file_list, info_dict_list
+        global file_list, info_dict_list, source_id, target_id, warp_id
         info_dict_list = []
         file_list = []
+        source_id = ""
+        target_id = ""
+        warp_id = ""
         self.init_widgets()
     
     def select_source_file(self):
@@ -534,6 +537,7 @@ class SidecarGenerator(QWidget):
                 json.dump(info_dict_list[i], f, indent=4)
 
         QMessageBox.information(self, "Information", f"The json files have been generated")
+        self.clear_files()
         self.init_widgets()
 
 
