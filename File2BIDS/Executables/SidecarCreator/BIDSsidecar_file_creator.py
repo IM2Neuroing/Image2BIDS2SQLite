@@ -14,7 +14,7 @@ import sys
 import json
 import os
 from PyQt6.QtWidgets import (
-    QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QFileDialog, 
+    QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QFileDialog, QProgressDialog,
     QLineEdit, QCheckBox, QLabel, QMessageBox, QDateEdit, QFrame, QScrollArea, QProgressBar
 )
 from PyQt6.QtCore import Qt, QDate, QThread, pyqtSignal
@@ -27,7 +27,7 @@ info_dict_list:list
 info_dict_list = [] # List of dictionaries with information extracted from file name - needed when processing multiple files together
 source_id = "" # Hash of source file - only for transformed files  
 target_id = "" # Hash of target file - only for transformed files 
-warp_id = "" # Hash of warp file - only for transformed files 
+warp_id = "" # Hash of warp file - only for transformed files
 
 class ExtractionThread(QThread):
     # Signal to update progress bar with the progress percentage
@@ -593,19 +593,45 @@ class SidecarGenerator(QWidget):
     
     def saveInformation(self):
         """
-        Function generating the json file for each selected files. The json file content is generated from the 
-        dictionaries in info_dict_list and from the manually inserted information from the GUI
+        Function generating the JSON file for each selected file. 
+        A progress dialog is displayed during the process.
         """
         global file_list, info_dict_list, source_id, target_id, warp_id
 
-        for i in range(len(file_list)):
-            json_path = f"{file_list[i].split('.', 1)[0]}_sidecar.json"
+        if not file_list:
+            QMessageBox.warning(self, "Warning", "No files to save.")
+            return
+
+        # Create a progress dialog
+        progress_dialog = QProgressDialog("Saving JSON files...", "Cancel", 0, len(file_list), self)
+        progress_dialog.setWindowTitle("Saving Progress")
+        progress_dialog.setWindowModality(Qt.WindowModality.ApplicationModal)
+        progress_dialog.setValue(0)
+
+        progress_dialog.setStyleSheet("""
+            QProgressBar {
+                border: 1px solid black;
+                border-radius: 5px;
+                text-align: center;
+            }
+            QProgressBar::chunk {
+                background-color: #fbd100;  /* Yellow */
+                width: 10px;
+            }
+        """)
+
+        for i, file in enumerate(file_list):
+            if progress_dialog.wasCanceled():
+                QMessageBox.information(self, "Cancelled", "The save operation was canceled.")
+                return
+
+            json_path = f"{file.split('.', 1)[0]}_sidecar.json"
             # Fill remaining dictionary fields
             info_dict_list[i]["bids"]["modality"] = self.text_modality.text()
             info_dict_list[i]["bids"]["protocol_name"] = self.text_protocol.text()
             info_dict_list[i]["bids"]["dicom_image_type"] = self.text_dicom_type.text()
             info_dict_list[i]["bids"]["acquisition_date_time"] = self.date_picker.date().toString("dd-MM-yyyy")
-            if self.checkbox_stereo.isChecked():    
+            if self.checkbox_stereo.isChecked():
                 info_dict_list[i]["bids"]["stereotactic"] = "yes"
             else:
                 info_dict_list[i]["bids"]["stereotactic"] = "no"
@@ -620,12 +646,15 @@ class SidecarGenerator(QWidget):
                     info_dict_list[i]["transformations"]["identity"] = "yes"
                 else:
                     info_dict_list[i]["transformations"]["identity"] = "no"
-             
+
             # Save the data to a JSON file
             with open(json_path, "w") as f:
                 json.dump(info_dict_list[i], f, indent=4)
 
-        QMessageBox.information(self, "Information", f"The json files have been generated")
+            # Update progress dialog
+            progress_dialog.setValue(i + 1)
+
+        QMessageBox.information(self, "Information", "The JSON files have been generated successfully.")
         self.clear_files()
         self.init_widgets()
 
