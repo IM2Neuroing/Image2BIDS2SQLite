@@ -15,9 +15,9 @@ import json
 import os
 from PyQt6.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QFileDialog, 
-    QLineEdit, QCheckBox, QLabel, QMessageBox, QDateEdit, QFrame, QScrollArea
+    QLineEdit, QCheckBox, QLabel, QMessageBox, QDateEdit, QFrame, QScrollArea, QProgressBar
 )
-from PyQt6.QtCore import Qt, QDate
+from PyQt6.QtCore import Qt, QDate, QThread, pyqtSignal
 from PyQt6.QtGui import QPixmap
 import gui_functions as gf
 
@@ -28,6 +28,35 @@ info_dict_list = [] # List of dictionaries with information extracted from file 
 source_id = "" # Hash of source file - only for transformed files  
 target_id = "" # Hash of target file - only for transformed files 
 warp_id = "" # Hash of warp file - only for transformed files 
+
+class ExtractionThread(QThread):
+    # Signal to update progress bar with the progress percentage
+    progress = pyqtSignal(int)  
+    # Signal to indicate that the thread has finished processing
+    finished = pyqtSignal()  
+
+    def __init__(self, file_list, label, transformed):
+        super().__init__()
+        # Initialize the class with the necessary data: list of files, label flag, and transformed flag
+        self.file_list = file_list
+        self.label = label
+        self.transformed = transformed
+
+    def run(self):
+        global info_dict_list
+        # Get the total number of files to process
+        total_files = len(self.file_list)
+        # Clear previous information to prevent overwriting
+        info_dict_list = [] 
+        for idx, file_abs_path in enumerate(self.file_list):
+            # Extract information from the current file (this will depend on the logic in `extract_info_from_filename`)
+            info_dict = gf.extract_info_from_filename(str(file_abs_path), is_label=self.label, is_transformed=self.transformed)
+            # Append the extracted info to the global list
+            info_dict_list.append(info_dict)
+            # Update the progress bar by emitting the current progress (percentage of completed files)
+            self.progress.emit(int((idx + 1) / total_files * 100))  # Progress percentage
+        # Once all files have been processed, emit the finished signal
+        self.finished.emit()
 
 class SidecarGenerator(QWidget):
     def __init__(self, list_of_files = []):
@@ -66,6 +95,7 @@ class SidecarGenerator(QWidget):
         layout_h4 = QHBoxLayout() # For layout_v1, layout_v2, layout_v3
         layout_h5 = QHBoxLayout() # For layout_v4, layout_v5, layout_v6
         layout_h6 = QHBoxLayout() # For save button and FHNW logo
+        layout_h7 = QHBoxLayout() # For extract info button and progress bar
 
         # Label explaining how to use the GUI
         self.explanation_label = QLabel(self)
@@ -85,6 +115,12 @@ class SidecarGenerator(QWidget):
         self.add_file_button = QPushButton('Add Files', self)
         self.add_file_button.clicked.connect(self.select_multiple_files)
         layout_h0.addWidget(self.add_file_button)
+
+        # Create the progress bar widget
+        self.progress_bar = QProgressBar(self)
+        self.progress_bar.setRange(0, 100)
+        self.progress_bar.setValue(0)
+        self.progress_bar.setTextVisible(True)
 
         # Clear button
         self.clear_button = QPushButton('Clear', self)
@@ -172,8 +208,12 @@ class SidecarGenerator(QWidget):
 
         # Button to trigger information extraction from file name
         self.extract_info_button = QPushButton('Extract information', self)
-        self.extract_info_button.clicked.connect(self.extract_info)
-        layout_v4.addWidget(self.extract_info_button, 0, Qt.AlignmentFlag.AlignCenter)
+        self.extract_info_button.clicked.connect(self.show_dialog_extract)
+        layout_h7.addWidget(self.extract_info_button)
+        layout_h7.addWidget(self.progress_bar)
+        layout_h7.addStretch()
+        
+        layout_v4.addLayout(layout_h7)
 
         # Label to show extraction status
         self.extraction_status_label = QLabel('', self)
@@ -298,6 +338,19 @@ class SidecarGenerator(QWidget):
             }
         """)
 
+        # Set stylesheet for progress bar to make it yellow
+        self.progress_bar.setStyleSheet("""
+            QProgressBar {
+                border: 1px solid black;
+                border-radius: 1px;
+                text-align: center;
+            }
+            QProgressBar::chunk {
+                background-color: #fbd100;  
+                width: 20px;
+            }
+        """)
+
         # Define buttons max size
         self.set_button_size(150, 40)
 
@@ -337,6 +390,7 @@ class SidecarGenerator(QWidget):
         self.date_picker.setDisabled(True)
         self.date_picker.setDate(QDate.currentDate())
         self.save_button.setDisabled(True)
+        self.progress_bar.setValue(0)
     
     def set_button_size(self, width, height):
         """
@@ -470,6 +524,7 @@ class SidecarGenerator(QWidget):
         global file_list, info_dict_list
         # Empty info_dict_list so that if the extraction needs to be repeated the dictionaries are not duplicated
         info_dict_list = []
+        self.progress_bar.setValue(0)
         # Check if the file is a label
         label = False
         transformed = False
@@ -477,12 +532,28 @@ class SidecarGenerator(QWidget):
             label = True
         if self.checkbox_transformation.isChecked():
             transformed = True
-        for file_abs_path in file_list:
-            # Get dictionary with information extracted from file name: one dictionary per file
-            info_dict = gf.extract_info_from_filename(str(file_abs_path), is_label=label, is_transformed=transformed)
-            info_dict_list.append(info_dict)
-        self.save_button.setDisabled(False)
+        
+        # Run extraction in a separate thread
+        self.thread = ExtractionThread(file_list, label, transformed)
+        self.thread.progress.connect(self.update_progress_bar)  # Connect progress bar update
+        self.thread.finished.connect(self.on_extraction_finished)  # Connect completion
+        self.thread.start()
+    
+    def update_progress_bar(self, value):
+        """
+        This function is used to update the progress bar displayed in the GUI. It takes the value parameter, which represents 
+        the current progress (typically a percentage from 0 to 100), and sets the progress bar to that value using 
+        self.progress_bar.setValue(value). The progress bar visually reflects the current progress of a task, like extracting 
+        information from files.
+        """
+        self.progress_bar.setValue(value)  # Update the progress bar
+
+    def on_extraction_finished(self):
+        """
+        This function is called when the extraction process is complete.
+        """
         self.extraction_status_label.setText('Information extraction from filename was successful')
+        self.save_button.setDisabled(False)  # Enable save button after extraction is done
 
     def show_dialog_proceed(self):
         """
@@ -500,6 +571,24 @@ class SidecarGenerator(QWidget):
 
         if response == QMessageBox.StandardButton.Yes:
             self.saveInformation()
+    
+    def show_dialog_extract(self):
+        """
+        Function showing a dialog window asking if the user has filled in the label and transformation fields. Such fields ar read during the
+        information extraction of the function extract_info.
+        If the user clicks on No the information is not extracted and the user can modify the fields.
+        """
+        msg_box = QMessageBox(self)
+        msg_box.setIcon(QMessageBox.Icon.Question)
+        msg_box.setWindowTitle("Confirm Action")
+        msg_box.setText("Please fill in the Label and Transformation information (if applicable) before proceeding.\nProceed?")
+        msg_box.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+        msg_box.setDefaultButton(QMessageBox.StandardButton.No)
+
+        response = msg_box.exec()
+
+        if response == QMessageBox.StandardButton.Yes:
+            self.extract_info()
     
     
     def saveInformation(self):
