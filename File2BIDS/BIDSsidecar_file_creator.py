@@ -172,7 +172,7 @@ class SidecarGenerator(QWidget):
 
         # Button to trigger information extraction from file name
         self.extract_info_button = QPushButton('Extract information', self)
-        self.extract_info_button.clicked.connect(self.extract_info)
+        self.extract_info_button.clicked.connect(self.show_dialog_extract)
         layout_v4.addWidget(self.extract_info_button, 0, Qt.AlignmentFlag.AlignCenter)
 
         # Label to show extraction status
@@ -500,6 +500,24 @@ class SidecarGenerator(QWidget):
 
         if response == QMessageBox.StandardButton.Yes:
             self.saveInformation()
+    
+    def show_dialog_extract(self):
+        """
+        Function showing a dialog window asking if the user has filled in the label and transformation fields. Such fields ar read during the
+        information extraction of the function extract_info.
+        If the user clicks on No the information is not extracted and the user can modify the fields.
+        """
+        msg_box = QMessageBox(self)
+        msg_box.setIcon(QMessageBox.Icon.Question)
+        msg_box.setWindowTitle("Confirm Action")
+        msg_box.setText("Please fill in the Label and Transformation information (if applicable) before proceeding.\nProceed?")
+        msg_box.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+        msg_box.setDefaultButton(QMessageBox.StandardButton.No)
+
+        response = msg_box.exec()
+
+        if response == QMessageBox.StandardButton.Yes:
+            self.extract_info()
     
     
     def saveInformation(self):
