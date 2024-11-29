@@ -91,11 +91,11 @@ def extract_info_from_filename(file, is_label=False, is_transformed = False):
     # Loop through bids_info elements except the last one (which we know it contains the suffix+file extension)
     for i in range(len(bids_info)-1):
         if 'sub' in bids_info[i]:
-            subject = bids_info[i].split('-')[1]
+            subject = bids_info[i].replace('sub-','')
         elif 'ses' in bids_info[i]:
-            session = bids_info[i].split('-')[1]
+            session = bids_info[i].replace('ses-','')
         elif 'acq' in bids_info[i]:
-            acquisition = bids_info[i].split('-')[1]
+            acquisition = bids_info[i].replace('acq-','')
     # Get file suffix and extension
     suffix = bids_info[-1].split('.', 1)[0]
     extension = bids_info[-1].split('.', 1)[1]
