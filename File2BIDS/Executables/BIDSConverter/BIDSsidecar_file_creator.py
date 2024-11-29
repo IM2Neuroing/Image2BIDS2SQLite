@@ -434,7 +434,7 @@ class SidecarGenerator(QWidget):
         Add files button. If at least one file has been selected the rest of the GUI fields are enabled
         """
         global file_list
-        filenames, _ = QFileDialog.getOpenFileNames(self, options= QFileDialog.Option.DontUseNativeDialog)
+        filenames, _ = QFileDialog.getOpenFileNames(self)
         if filenames:
             for i in range(len(filenames)):
                 # If the filename is not already in the list
