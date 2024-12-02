@@ -25,9 +25,32 @@ file_list:list
 file_list = [] # Variable in which to save the list of absolute file paths
 info_dict_list:list
 info_dict_list = [] # List of dictionaries with information extracted from file name - needed when processing multiple files together
-source_id = "" # Hash of source file - only for transformed files  
+source_ids = [] # Hash of source file - only for transformed files  
 target_id = "" # Hash of target file - only for transformed files 
 warp_id = "" # Hash of warp file - only for transformed files
+
+class HashGenThread(QThread):
+    # Define signals to communicate with the main thread
+    progress = pyqtSignal(int)  # Signal for progress update
+    finished = pyqtSignal(list)  # Signal when processing is finished
+
+    def __init__(self, files):
+        super().__init__()
+        self.files = files  # Files to process
+
+    def run(self):
+        global source_ids
+        total_files = len(self.files)
+        # Perform the hash calculation 
+        for idx, file in enumerate(self.files):
+            # Calculate hash for the file (simulate a long-running task)
+            source_id = gf.calculate_hash(file)
+            source_ids.append(source_id)
+            # Update the progress bar by emitting the current progress (percentage of completed files)
+            self.progress.emit(int((idx + 1) / total_files * 100))  # Progress percentage
+
+        # Once done, emit the result (list of source_ids)
+        self.finished.emit(self.files)
 
 class ExtractionThread(QThread):
     # Signal to update progress bar with the progress percentage
@@ -160,18 +183,28 @@ class SidecarGenerator(QWidget):
         layout_v2.addStretch()
 
         # File selection button - source file
-        self.source_file_button = QPushButton('Select', self)
+        self.source_file_button = QPushButton('Select source', self)
         self.source_file_button.clicked.connect(self.select_source_file)
         layout_h1.addWidget(self.source_file_button)
 
         # Label to show selected files - source file
-        self.source_file_label = QLabel('Select a source file ', self)
-        self.source_file_label.setFixedSize(200,100)
+        self.source_file_label = QLabel('Select source files ', self)
         self.source_file_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
-        layout_h1.addWidget(self.source_file_label)
+
+        # Scrollable area in which to embed the selected files label - we expect the text to be long if many files are selected
+        self.source_files_scroll_area = QScrollArea(self)
+        self.source_files_scroll_area.setWidgetResizable(True)
+        self.source_files_scroll_area.setWidget(self.source_file_label)
+        self.source_files_scroll_area.setFixedSize(500,220)
+
+        # Create the progress bar widget to show processing status of source files hashes
+        self.sf_progress_bar = QProgressBar(self)
+        self.sf_progress_bar.setRange(0, 100)
+        self.sf_progress_bar.setValue(0)
+        self.sf_progress_bar.setTextVisible(True)
 
         # File selection button - target file
-        self.target_file_button = QPushButton('Select', self)
+        self.target_file_button = QPushButton('Select target', self)
         self.target_file_button.clicked.connect(self.select_target_file)
         layout_h2.addWidget(self.target_file_button)
 
@@ -182,7 +215,7 @@ class SidecarGenerator(QWidget):
         layout_h2.addWidget(self.target_file_label)
 
         # File selection button - warp file
-        self.warp_file_button = QPushButton('Select', self)
+        self.warp_file_button = QPushButton('Select warp', self)
         self.warp_file_button.clicked.connect(self.select_warp_file)
         layout_h3.addWidget(self.warp_file_button)
 
@@ -202,6 +235,8 @@ class SidecarGenerator(QWidget):
         layout_v3.addWidget(self.checkbox_identity)
 
         layout_v3.addLayout(layout_h1)
+        layout_v3.addWidget(self.sf_progress_bar)
+        layout_v3.addWidget(self.source_files_scroll_area)
         layout_v3.addLayout(layout_h2)
         layout_v3.addLayout(layout_h3)
         layout_v3.addStretch()
@@ -351,6 +386,19 @@ class SidecarGenerator(QWidget):
             }
         """)
 
+        # Set stylesheet for progress bar to make it yellow
+        self.sf_progress_bar.setStyleSheet("""
+            QProgressBar {
+                border: 1px solid black;
+                border-radius: 1px;
+                text-align: center;
+            }
+            QProgressBar::chunk {
+                background-color: #fbd100;  
+                width: 20px;
+            }
+        """)
+
         # Define buttons max size
         self.set_button_size(150, 40)
 
@@ -391,6 +439,7 @@ class SidecarGenerator(QWidget):
         self.date_picker.setDate(QDate.currentDate())
         self.save_button.setDisabled(True)
         self.progress_bar.setValue(0)
+        self.sf_progress_bar.setValue(0)
     
     def set_button_size(self, width, height):
         """
@@ -462,10 +511,10 @@ class SidecarGenerator(QWidget):
         """
         Function to clear the file list and reset the GUI to initialization status
         """
-        global file_list, info_dict_list, source_id, target_id, warp_id
+        global file_list, info_dict_list, source_ids, target_id, warp_id
         info_dict_list = []
         file_list = []
-        source_id = ""
+        source_ids = []
         target_id = ""
         warp_id = ""
         self.init_widgets()
@@ -475,15 +524,38 @@ class SidecarGenerator(QWidget):
         Function to select only one file - the source file for a transformation. The selected file name is 
         shown in the label at the right of the button
         """
-        global source_id
-        source_id = ""
-        file, _ = QFileDialog.getOpenFileName(self, "Select a File", "", "All Files (*)")
-        if file:
-            source_id = gf.calculate_hash(file)
-            self.source_file_label.setText(f"Selected file: {file.split('/')[-1]}")
-            self.source_file_label.setWordWrap(True)
-        else:
-            self.source_file_label.setText('Select a source file')
+        global source_ids, file_list
+        source_ids = []
+        # Ignore sidecar files
+        files, _ = QFileDialog.getOpenFileNames(self, "Select Files", "", "VTU and NIFTI Files (*.vtu *.nii *.nii.gz)")
+        if files:
+            if len(files) == 1 or len(files) == len(file_list):
+                # Display a temporary status to indicate processing
+                self.source_file_label.setText("Processing selected files, please wait...")
+                self.source_file_label.setWordWrap(True)
+                
+                # Create and start the extraction thread
+                self.thread = HashGenThread(files) 
+                self.thread.progress.connect(self.update_sf_progress_bar) 
+                self.thread.finished.connect(self.on_hashes_done)  # Connect finished signal
+                self.thread.start()
+            else:
+                QMessageBox.warning(self, "Warning", "Please select either: \n1) 1 common source file \n2) As many source files as the input ones")
+                self.source_file_label.setText('Select source files')
+    
+    def update_sf_progress_bar(self, value):
+        """
+        This function is used to update the progress bar displayed in the GUI. It takes the value parameter, which represents 
+        the current progress (typically a percentage from 0 to 100), and sets the progress bar to that value using 
+        self.progress_bar.setValue(value). The progress bar visually reflects the current progress of a task, like extracting 
+        information from files.
+        """
+        self.sf_progress_bar.setValue(value)  # Update the progress bar
+    
+    def on_hashes_done(self, files):
+        """Callback to handle the completion of the hashing."""
+        self.source_file_label.setText('Selected files:\n' + '\n\n'.join(files))
+        self.source_file_label.setWordWrap(True)
     
     def select_target_file(self):
         """
@@ -596,7 +668,7 @@ class SidecarGenerator(QWidget):
         Function generating the JSON file for each selected file. 
         A progress dialog is displayed during the process.
         """
-        global file_list, info_dict_list, source_id, target_id, warp_id
+        global file_list, info_dict_list, source_ids, target_id, warp_id
 
         if not file_list:
             QMessageBox.warning(self, "Warning", "No files to save.")
@@ -641,7 +713,11 @@ class SidecarGenerator(QWidget):
             if self.checkbox_transformation.isChecked():
                 info_dict_list[i]["transformations"]["target_id"] = target_id
                 info_dict_list[i]["transformations"]["transform_id"] = warp_id
-                info_dict_list[i]["files"]["source_id"] = source_id
+                # If there are multiple source files get the one corresponding to the input file
+                if len(source_ids)>1:
+                    info_dict_list[i]["files"]["source_id"] = source_ids[i]
+                else:
+                    info_dict_list[i]["files"]["source_id"] = source_ids[0]
                 if self.checkbox_identity.isChecked():
                     info_dict_list[i]["transformations"]["identity"] = "yes"
                 else:
