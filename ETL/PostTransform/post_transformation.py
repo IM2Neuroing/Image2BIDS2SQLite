@@ -68,7 +68,7 @@ def update_subject_ids() -> None:
     # Get the Subjects table from the SQLite DB
     engine = create_engine("sqlite:///"+CONFIG["db_path"])  
     with engine.connect() as conn, conn.begin():
-        subjects = pd.read_sql_table("subjects", conn)
+        subjects = pd.read_sql("SELECT * FROM subjects", conn)
 
     # check if the subjects table is empty
     if subjects.empty:
