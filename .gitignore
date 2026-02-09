@@ -165,3 +165,4 @@ config_docker.json
 IMS/IMS.db
 .vscode
 IMS_setup/SQLite_setup/setup
+migrate_usb_db.sh
