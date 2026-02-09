@@ -5,9 +5,10 @@ CREATE TABLE
      , electrode_id TEXT
      , file_path TEXT NOT NULL
      , file_type TEXT NOT NULL
-     , source_id INTEGER
+     , source_id TEXT
      , transformation_id INTEGER
-     , CONSTRAINT fk_images_images_1 FOREIGN KEY (file_id) REFERENCES files (source_id)
+     , CONSTRAINT fk_files_source FOREIGN KEY (source_id) REFERENCES files (file_id)
+     , CONSTRAINT fk_files_transformation FOREIGN KEY (transformation_id) REFERENCES transformations (transformation_id)
      , PRIMARY KEY (file_id)
      , UNIQUE (file_path)
      );

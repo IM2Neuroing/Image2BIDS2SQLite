@@ -1,7 +1,7 @@
 from ETL.Extract.extract import extract_sidecar_data
 from ETL.Transform.transform import transform_sidecar_data
 from ETL.Load.load import load_sidecar_data, database_setup
-from ETL.PostTransform.post_transformation import update_transformation_id, backpropation
+from ETL.PostTransform.post_transformation import update_subject_ids, update_transformation_id, backpropation
 
 import logging
 
@@ -26,6 +26,10 @@ def workflow_BIDS2SQLite():
 
     # Load data
     load_sidecar_data()
+    # Populate subject_id in files table after load
+    update_subject_ids()
+    update_transformation_id()
+    backpropation()
     workflow_logger.info("Workflow finished successfully.")
 
 # Main program

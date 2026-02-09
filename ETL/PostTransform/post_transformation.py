@@ -91,6 +91,8 @@ def update_subject_ids() -> None:
     files['BIDS_subject_id'] = files['file_path'].apply(lambda x: x.split("/")[-1].split("_")[0].replace("sub-", "").strip().upper())
     # Add the real subject ID to the files table
     files['subject_id'] = files['BIDS_subject_id'].apply(lambda x: subjects[subjects['BIDS_subject_id'] == x]['subject_id'].values[0] if not subjects[subjects['BIDS_subject_id'] == x]['subject_id'].empty else None)
+    # Convert subject_id to Int64 (nullable integer) to avoid float conversion
+    files['subject_id'] = files['subject_id'].astype('Int64')
     # Drop BIDS_subject_id column
     files.drop(columns=['BIDS_subject_id'], inplace=True)
 

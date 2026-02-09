@@ -7,6 +7,9 @@ import logging
 # Configure logger
 workflow_logger = logging.getLogger('workflow_logger')
 
+def _enable_foreign_keys(conn):
+    conn.execute("PRAGMA foreign_keys = ON;")
+
 def create_database(database_name, database_sql ,wipe=False):
     """
     This function creates a new SQLite database using the provided SQL schema.
@@ -33,6 +36,7 @@ def create_database(database_name, database_sql ,wipe=False):
     try:
         # Create a connection to the database
         conn = sqlite3.connect(database_name)
+        _enable_foreign_keys(conn)
 
         # Create a cursor object to interact with the database
         cursor = conn.cursor()
@@ -70,6 +74,7 @@ def wipe_sqlite_database(db_name):
     try:
         # Connect to the SQLite database
         conn = sqlite3.connect(db_name)
+        _enable_foreign_keys(conn)
         cursor = conn.cursor()
 
         # Get all table names
@@ -102,6 +107,7 @@ def execute_sql_statement(sql_statement, db_file):
     """
     # Connect to the SQLite database
     conn = sqlite3.connect(db_file)
+    _enable_foreign_keys(conn)
     cursor = conn.cursor()
 
     try:
@@ -141,6 +147,7 @@ def execute_sql_script(sql_script, db_file):
     """
     # Connect to the SQLite database
     conn = sqlite3.connect(db_file)
+    _enable_foreign_keys(conn)
     cursor = conn.cursor()
 
     try:
@@ -168,6 +175,7 @@ def data_check(db_file):
     """
     # Connect to the SQLite database
     conn = sqlite3.connect(db_file)
+    _enable_foreign_keys(conn)
     
     # Create a cursor object
     cursor = conn.cursor()
