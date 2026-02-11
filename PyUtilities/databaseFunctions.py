@@ -121,7 +121,7 @@ def generate_insert_statement(table_name, data):
     # remove ' after closing brackets to avoid SQL errors
     values = re.sub(r"(\))'", r'\1', values)
 
-    insert_statement = f"INSERT OR IGNORE INTO {table_name} ({columns}) VALUES ({values});"
+    insert_statement = f"INSERT OR REPLACE INTO {table_name} ({columns}) VALUES ({values});"
     
     return insert_statement
 
